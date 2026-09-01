@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accountant Payment Options | Rockview University</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            color: #263746;
+            background:
+                linear-gradient(135deg, rgba(76, 28, 0, .82), rgba(245, 124, 0, .72), rgba(76, 28, 0, .82)),
+                url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover no-repeat fixed;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page-shell {
+            width: 100%;
+            max-width: 980px;
+            transform: scale(var(--fit-scale, 1));
+            transform-origin: center center;
+        }
+
+        .payment-card {
+            overflow: hidden;
+            background: rgba(255, 255, 255, .98);
+            border-radius: 14px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .32);
+        }
+
+        .page-header {
+            padding: 17px 25px 15px;
+            color: #ffffff;
+            text-align: center;
+            background: linear-gradient(120deg, #7b2100, #f57c00, #7b2100);
+            background-size: 220% 100%;
+            border-bottom: 5px solid #ffd166;
+            animation: headerFlow 8s ease-in-out infinite;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 26px;
+            letter-spacing: .8px;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+            color: #fff3df;
+            font-size: 12px;
+        }
+
+        .content {
+            padding: 18px 22px 19px;
+        }
+
+        .student-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 17px;
+            padding: 11px 15px;
+            background: #fff6eb;
+            border: 1px solid #f1d1ae;
+            border-left: 5px solid #f57c00;
+            border-radius: 8px;
+        }
+
+        .student-label {
+            margin-bottom: 3px;
+            color: #8b5a32;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .student-name {
+            color: #8b2500;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .student-id {
+            color: #5e6b76;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .forms-layout {
+            display: grid;
+            grid-template-columns: minmax(0, .95fr) minmax(0, 1.25fr);
+            gap: 17px;
+            align-items: stretch;
+        }
+
+        .section {
+            min-width: 0;
+            padding: 17px;
+            background: #fffdfb;
+            border: 1px solid #ead8c6;
+            border-top: 4px solid #f57c00;
+            border-radius: 9px;
+        }
+
+        .section-heading {
+            margin: 0 0 5px;
+            color: #8b2500;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 19px;
+            text-align: center;
+        }
+
+        .section-description {
+            margin: 0 0 14px;
+            color: #66717c;
+            font-size: 11px;
+            line-height: 1.35;
+            text-align: center;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .payment-option {
+            display: flex;
+            min-height: 64px;
+            align-items: center;
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 2px solid #ead8c6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .payment-option:hover {
+            transform: translateX(3px);
+            border-color: #f57c00;
+            box-shadow: 0 5px 14px rgba(139, 37, 0, .12);
+        }
+
+        .payment-option:has(input:checked) {
+            transform: translateX(3px);
+            background: #fff3e0;
+            border-color: #f57c00;
+            box-shadow: 0 0 0 3px rgba(245, 124, 0, .12);
+        }
+
+        .payment-option input {
+            width: 19px;
+            height: 19px;
+            flex: 0 0 auto;
+            margin: 0 11px 0 0;
+            accent-color: #f57c00;
+        }
+
+        .payment-option strong {
+            display: block;
+            color: #8b2500;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 15px;
+        }
+
+        .payment-option small {
+            display: block;
+            margin-top: 3px;
+            color: #697783;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        .selected-message {
+            min-height: 17px;
+            margin-top: 9px;
+            color: #a94c00;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .submit-button,
+        .details-button {
+            width: 100%;
+            margin-top: 9px;
+            padding: 11px 15px;
+            color: #ffffff;
+            background: #cc0000;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .submit-button:hover,
+        .details-button:hover {
+            background: #a90000;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .field-group {
+            min-width: 0;
+        }
+
+        .field-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #465560;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            height: 35px;
+            padding: 0 8px;
+            color: #263746;
+            background: #ffffff;
+            border: 1px solid #c7d0d7;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: #f57c00;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(245, 124, 0, .12);
+        }
+
+        .form-note {
+            margin: 13px 0 0;
+            color: #7b8790;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        @keyframes headerFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (max-width: 700px) {
+            .forms-layout {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+            }
+
+            .content {
+                padding: 13px 12px 14px;
+            }
+
+            .section {
+                padding: 11px 9px;
+            }
+
+            .section-heading {
+                font-size: 15px;
+            }
+
+            .section-description {
+                font-size: 9px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 7px;
+            }
+
+            .field-group.full-width {
+                grid-column: auto;
+            }
+
+            .payment-option small {
+                font-size: 9px;
+            }
+        }
+            .institution-logo {
+            display: block;
+            width: 58px;
+            height: 58px;
+           margin: 0 auto 6px;
+           object-fit: contain;
+    border-radius: 50%;
+    background: #ffffff;
+    padding: 3px;
+}
+
+    </style>
+</head>
+
+<body>
+    <main class="page-shell" id="pageShell">
+        <section class="payment-card">
+            <header class="page-header">
+    <img
+        class="institution-logo"
+        src="{{ url_for('static', filename='imgs/OIP.jpeg') }}"
+        alt="Rockview University logo"
+    >
+
+    <h1>ROCKVIEW UNIVERSITY</h1>
+    <p>Accounts Department · Payment Processing</p>
+            <p class="academic-mode" id="academicMode">Academic period: {{ "Semesters" if is_health_sciences else "Terms" }}</p>
+</header>
+
+            <div class="content">
+                <div class="student-banner">
+                    <div>
+                        <div class="student-label">Recording payment for</div>
+                        <div class="student-name">{{ student.name }}</div>
+                    </div>
+                    <div class="student-id">
+                        <strong>Student ID:</strong> {{ student.id }}
+                    </div>
+                </div>
+
+                <div class="forms-layout">
+                    <!-- LEFT: payment-status options -->
+                    <section class="section">
+                        <h2 class="section-heading">Payment Status</h2>
+                        <p class="section-description">Choose exactly one payment category.</p>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('add_payment_option', student_id=student.id) }}"
+                            id="paymentOptionForm"
+                        >
+                            <div class="payment-options">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_option" value="50" required>
+                                    <span>
+                                        <strong>50%</strong>
+                                        <small>Paid exactly half of the required amount.</small>
+                                    </span>
+                                </label>
+
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_option" value="above_50" required>
+                                    <span>
+                                        <strong>Above 50%</strong>
+                                        <small>Paid more than half, but less than the full amount.</small>
+                                    </span>
+                                </label>
+
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_option" value="below_50" required>
+                                    <span>
+                                        <strong>Below 50%</strong>
+                                        <small>Paid less than half of the required amount.</small>
+                                    </span>
+                                </label>
+
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_option" value="100" required>
+                                    <span>
+                                        <strong>100%</strong>
+                                        <small>Paid the full required amount.</small>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div id="selectedMessage" class="selected-message" aria-live="polite"></div>
+
+                            <button type="submit" class="submit-button">
+                                Process Payment Option
+                            </button>
+                        </form>
+                    </section>
+
+                    <!-- RIGHT: detailed term-payment record -->
+                    <section class="section">
+                        <h2 class="section-heading">Academic Period Payment Record</h2>
+                        <p class="section-description">Record the payment details, including date and time.</p>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('add_payment', student_id=student.id) }}"
+                            id="paymentDetailsForm"
+                        >
+                            <div class="details-grid">
+                                <div class="field-group">
+                                    <label for="term" id="periodLabel">Academic Period</label>
+                                    <select name="term" id="term" required>
+                                        <option value="">Select Academic Period</option>
+                                        <optgroup label="Humanities Terms">
+                                            <option value="Term 1">Term 1</option>
+                                            <option value="Term 2">Term 2</option>
+                                            <option value="Term 3">Term 3</option>
+                                        </optgroup>
+                                        <optgroup label="Health Sciences Semesters">
+                                            <option value="Semester 1">Semester 1</option>
+                                            <option value="Semester 2">Semester 2</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="field-group">
+                                    <label for="amount">Amount Paid</label>
+                                    <input type="number" step="0.01" name="amount" id="amount" required>
+                                </div>
+
+                                <div class="field-group">
+                                    <label for="payment_date">Payment Date</label>
+                                    <input type="date" name="payment_date" id="payment_date" required>
+                                </div>
+
+                                <div class="field-group">
+                                    <label for="payment_time">Payment Time</label>
+                                    <input type="time" name="payment_time" id="payment_time" required>
+                                </div>
+
+                                <div class="field-group full-width">
+                                    <label for="description">Comments / Description</label>
+                                    <input
+                                        type="text"
+                                        name="description"
+                                        id="description"
+                                        placeholder="Enter payment comments or description"
+                                    >
+                                </div>
+                            </div>
+
+                            <button type="submit" class="details-button">
+                                Record Term Payment
+                            </button>
+                        </form>
+                    </section>
+                </div>
+
+                <p class="form-note">
+                    Select the correct academic period for this student, then confirm the payment details before submitting.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const paymentOptions = document.querySelectorAll('input[name="payment_option"]');
+        const selectedMessage = document.getElementById("selectedMessage");
+
+        paymentOptions.forEach(function (option) {
+            option.addEventListener("change", function () {
+                const label = option.closest("label").querySelector("strong").textContent;
+                selectedMessage.textContent = "Selected payment status: " + label;
+            });
+        });
+
+        function fitPageToViewport() {
+            const shell = document.getElementById("pageShell");
+            if (!shell) return;
+
+            shell.style.setProperty("--fit-scale", "1");
+
+            const availableHeight = Math.max(1, window.innerHeight - 16);
+            const availableWidth = Math.max(1, window.innerWidth - 16);
+            const naturalHeight = shell.scrollHeight;
+            const naturalWidth = shell.scrollWidth;
+            const scale = Math.min(
+                1,
+                availableHeight / naturalHeight,
+                availableWidth / naturalWidth
+            );
+
+            shell.style.setProperty("--fit-scale", String(scale));
+        }
+
+        window.addEventListener("load", fitPageToViewport);
+        window.addEventListener("resize", fitPageToViewport);
+        setTimeout(fitPageToViewport, 100);
+    </script>
+</body>
+</html>

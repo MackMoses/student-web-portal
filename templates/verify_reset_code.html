@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071a3d">
+  <title>Verify Reset Code | Rockview University</title>
+  <style>
+    :root { --navy:#071a3d; --blue:#155eef; --blue-dark:#0b3da8; --gold:#f6c453; --ink:#17233c; --muted:#69748b; --line:#dfe5f0; }
+    * { box-sizing:border-box; }
+    body { min-height:100vh; margin:0; display:grid; place-items:center; padding:24px 16px 90px; color:var(--ink); font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; background:#071a3d url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center/cover fixed no-repeat; }
+    body::before { content:""; position:fixed; inset:0; z-index:-1; background:linear-gradient(125deg,rgba(4,19,48,.96),rgba(12,80,169,.7)); }
+    .card { width:min(100%,480px); overflow:hidden; border:1px solid rgba(255,255,255,.3); border-radius:26px; background:rgba(255,255,255,.97); box-shadow:0 25px 70px rgba(0,0,0,.3); }
+    .card-header { padding:28px 28px 24px; color:#fff; text-align:center; background:linear-gradient(120deg,var(--navy),#0d3c86); border-bottom:3px solid var(--gold); }
+    .logo { display:block; width:78px; height:78px; margin:0 auto 14px; padding:7px; object-fit:contain; border-radius:50%; background:#fff; box-shadow:0 0 0 7px rgba(246,196,83,.2); }
+    .university { margin:0; color:var(--gold); font-size:.74rem; font-weight:850; letter-spacing:.18em; text-transform:uppercase; }
+    .header-title { margin:9px 0 0; font-size:1.45rem; font-weight:800; }
+    .content { padding:32px clamp(24px,7vw,48px) 37px; }
+    h1 { margin:0 0 10px; color:var(--navy); text-align:center; font-size:1.85rem; letter-spacing:-.045em; }
+    .intro { margin:0 0 24px; color:var(--muted); text-align:center; line-height:1.6; }
+    .messages { display:grid; gap:9px; margin:0 0 18px; padding:0; list-style:none; }
+    .messages li { padding:12px 13px; border-left:4px solid var(--gold); border-radius:8px; color:#684b00; background:#fff8e6; font-size:.87rem; line-height:1.45; }
+    label { display:block; margin:16px 0 7px; color:#344054; font-size:.85rem; font-weight:780; }
+    input { width:100%; padding:15px; border:1px solid var(--line); border-radius:10px; outline:0; color:var(--ink); background:#fbfcff; text-align:center; font:inherit; font-size:1.25rem; font-weight:750; letter-spacing:.35em; }
+    input:focus { border-color:var(--blue); background:#fff; box-shadow:0 0 0 4px rgba(21,94,239,.12); }
+    button { width:100%; margin-top:24px; padding:14px; border:0; border-radius:10px; color:#fff; background:linear-gradient(100deg,var(--blue-dark),var(--blue)); box-shadow:0 10px 20px rgba(21,94,239,.22); cursor:pointer; font:inherit; font-weight:800; transition:.2s ease; }
+    button:hover { transform:translateY(-2px); }
+    .links { display:flex; justify-content:space-between; gap:15px; margin-top:18px; }
+    .links a { color:var(--blue-dark); font-size:.85rem; font-weight:750; text-decoration:none; }
+    .links a:hover { text-decoration:underline; }
+    .footer { position:fixed; right:0; bottom:0; left:0; overflow:hidden; color:#d9e7ff; background:linear-gradient(180deg,rgba(3,14,36,.9),rgba(1,7,19,.99)); border-top:1px solid rgba(246,196,83,.25); }
+    .marquee-container { overflow:hidden; padding:8px 0 7px; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,.08); }
+    .marquee { display:inline-block; min-width:100%; padding-left:100%; color:#f8d477; font-size:.7rem; font-weight:750; letter-spacing:.12em; text-transform:uppercase; animation:scroll-left 75s linear infinite; }
+    .fire { position:relative; height:23px; overflow:hidden; background:linear-gradient(to top,rgba(255,74,0,.84),rgba(255,174,0,.42) 45%,transparent); filter:drop-shadow(0 -3px 7px rgba(255,130,0,.55)); animation:fire-glow 900ms ease-in-out infinite alternate; }
+    .fire::before,.fire::after { content:""; position:absolute; bottom:-19px; width:180%; height:42px; border-radius:48% 52% 0 0; background:radial-gradient(ellipse at 18% 100%,#fff4a8 0 7%,#ffbd19 8% 17%,transparent 18%),radial-gradient(ellipse at 43% 100%,#fff0a0 0 8%,#ff6a00 9% 20%,transparent 21%),radial-gradient(ellipse at 70% 100%,#ffe68a 0 7%,#ff7a00 8% 18%,transparent 19%),radial-gradient(ellipse at 92% 100%,#ffda58 0 7%,#f13b00 8% 20%,transparent 21%); animation:flame-wave 1200ms ease-in-out infinite alternate; }
+    .fire::after { opacity:.55; animation-duration:820ms; animation-direction:alternate-reverse; }
+    @keyframes scroll-left { from { transform:translateX(0); } to { transform:translateX(-100%); } }
+    @keyframes fire-glow { from { opacity:.72; } to { opacity:1; } }
+    @keyframes flame-wave { from { transform:translateX(-10%) skewX(-3deg) scaleY(.88); } to { transform:translateX(-2%) skewX(3deg) scaleY(1.1); } }
+    @media (max-width:500px) { .links { flex-direction:column; align-items:center; } }
+    @media (prefers-reduced-motion:reduce) { .marquee,.fire,.fire::before,.fire::after { animation:none; } }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <header class="card-header">
+      <img class="logo" src="{{ url_for('static', filename='imgs/OIP.jpeg') }}" alt="Rockview University logo" onerror="this.style.display='none';">
+      <p class="university">Rockview University</p>
+      <p class="header-title">Secure Verification</p>
+    </header>
+    <section class="content">
+      <h1>Enter your reset code</h1>
+      <p class="intro">Check your registered email for the six-digit code. For your security, this code expires after 10 minutes.</p>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="messages" role="status">
+            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      <form method="POST" action="{{ url_for('verify_reset_code', student_id=student_id) }}">
+        <label for="code">Six-Digit Verification Code</label>
+        <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus>
+        <button type="submit">Verify code</button>
+      </form>
+      <nav class="links" aria-label="Password recovery links">
+        <a href="{{ url_for('forgot_password') }}">Request a new code</a>
+        <a href="{{ url_for('login') }}">Return to login</a>
+      </nav>
+    </section>
+  </main>
+  <footer class="footer" aria-label="University announcement">
+    <div class="marquee-container"><div class="marquee">Rockview University Student Services · Secure access for every student · We are here to help</div></div>
+    <div class="fire" aria-hidden="true"></div>
+  </footer>
+</body>
+</html>

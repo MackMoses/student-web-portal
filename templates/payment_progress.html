@@ -1,0 +1,298 @@
+<!-- templates/payment_progress.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Progress for {{ student.name }}</title>
+
+    <style>
+        :root {
+            --navy: #071b35;
+            --blue: #1261a0;
+            --cyan: #2bd5ed;
+            --gold: #f4bd43;
+            --purple: #8d6aff;
+            --white: #ffffff;
+            --muted: #c9dced;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--white);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(43,213,237,.22), transparent 28%),
+                radial-gradient(circle at 85% 80%, rgba(141,106,255,.2), transparent 30%),
+                linear-gradient(135deg, rgba(3,18,40,.96), rgba(18,97,160,.84)),
+                url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover no-repeat fixed;
+        }
+
+        .page-wrap {
+            width: min(100%, 720px);
+            text-align: center;
+            animation: pageEnter .8s ease both;
+        }
+
+        .back-button-top {
+            position: fixed;
+            top: 18px;
+            left: 20px;
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 9px 14px;
+            color: #09203b;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ffd76a, var(--gold));
+            border: 1px solid rgba(255,255,255,.7);
+            border-radius: 9px;
+            box-shadow: 0 6px 16px rgba(0,0,0,.28);
+            transition: transform .2s ease, filter .2s ease;
+        }
+
+        .back-button-top:hover {
+            color: #09203b;
+            filter: brightness(1.1);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .eyebrow {
+            margin-bottom: 10px;
+            color: #c9f8ff;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        .progress-frame {
+            position: relative;
+            isolation: isolate;
+            padding: 30px 28px 26px;
+            background: rgba(5,24,52,.91);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 22px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.45);
+        }
+
+        .progress-frame::before {
+            position: absolute;
+            z-index: -1;
+            inset: -3px;
+            content: "";
+            border-radius: 25px;
+            background: linear-gradient(100deg, var(--cyan), var(--purple), var(--gold), var(--cyan));
+            background-size: 300% 100%;
+            filter: blur(7px);
+            animation: borderFlow 6s linear infinite;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(24px, 5vw, 38px);
+            line-height: 1.12;
+            text-shadow: 0 5px 18px rgba(0,0,0,.35);
+        }
+
+        .student-line {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .chart-stage {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 520px;
+            padding: 20px;
+            background: radial-gradient(circle, rgba(255,255,255,.12), rgba(255,255,255,.035) 60%, transparent 72%);
+            border: 1px solid rgba(255,255,255,.17);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .chart-stage::before {
+            position: absolute;
+            width: 285px;
+            height: 285px;
+            content: "";
+            border: 1px solid rgba(43,213,237,.3);
+            border-radius: 50%;
+            animation: orbit 9s linear infinite;
+        }
+
+        .chart-stage::after {
+            position: absolute;
+            width: 330px;
+            height: 330px;
+            content: "";
+            border: 1px dashed rgba(244,189,67,.26);
+            border-radius: 50%;
+            animation: orbitReverse 13s linear infinite;
+        }
+
+        .chart-image {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: min(520px, 88vw);
+            height: auto;
+            max-height: 470px;
+            min-height: 320px;
+            margin: 0;
+            object-fit: contain;
+            border: 5px solid rgba(255,255,255,.85);
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 0 0 8px rgba(43,213,237,.12), 0 12px 30px rgba(0,0,0,.4);
+        }
+
+        .chart-caption {
+            margin: 17px 0 0;
+            color: #dff9ff;
+            font-size: 12px;
+            letter-spacing: .5px;
+        }
+
+        .dashboard-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 210px;
+            min-height: 42px;
+            margin-top: 20px;
+            padding: 10px 18px;
+            color: #09203b;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ffd76a, var(--gold));
+            border: 0;
+            border-radius: 9px;
+            box-shadow: 0 7px 18px rgba(244,189,67,.28);
+            transition: transform .2s ease, filter .2s ease;
+        }
+
+        .dashboard-link:hover {
+            color: #09203b;
+            filter: brightness(1.1);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        @keyframes borderFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.06); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes orbitReverse {
+            from { transform: rotate(360deg) scale(1); }
+            50% { transform: rotate(180deg) scale(.95); }
+            to { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(18px) scale(.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                overflow: auto;
+                align-items: flex-start;
+                padding-top: 28px;
+            }
+
+            .progress-frame {
+                padding: 25px 15px 22px;
+            }
+
+            .chart-stage {
+                min-height: 390px;
+                padding: 12px;
+            }
+
+            .chart-stage::before {
+                width: 225px;
+                height: 225px;
+            }
+
+            .chart-stage::after {
+                width: 260px;
+                height: 260px;
+            }
+
+            .chart-image {
+                width: min(520px, 92vw);
+                max-height: 350px;
+                min-height: 260px;
+            }
+
+            .back-button-top {
+                top: 12px;
+                left: 12px;
+                min-height: 36px;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a class="back-button-top" href="{{ url_for('dashboard') }}">
+        &larr; Back to Dashboard
+    </a>
+
+    <main class="page-wrap">
+        <div class="eyebrow">Student Finance Overview</div>
+
+        <section class="progress-frame" aria-labelledby="progress-title">
+            <h1 id="progress-title">Payment Progress</h1>
+            <p class="student-line">Progress chart for <strong>{{ student.name }}</strong></p>
+
+            <div class="chart-stage">
+                <img
+                    class="chart-image"
+                    src="data:image/png;base64,{{ image_base64 }}"
+                    alt="Payment progress chart for {{ student.name }}"
+                    width="400"
+                    height="400"
+                >
+            </div>
+
+            <p class="chart-caption">Your payment progress is presented in the chart above.</p>
+
+        </section>
+    </main>
+</body>
+</html>

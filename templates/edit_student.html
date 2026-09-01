@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Edit Student</title>
+<style>
+  /* Reset some default styles */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    font-family: 'Arial', sans-serif;
+  }
+
+  .container {
+    perspective: 1500px;
+    padding: 40px;
+  }
+
+  /* 3D Box */
+  .box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    transform: rotateX(10deg) rotateY(10deg);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  /* Hover effect for 3D box */
+  .box:hover {
+    transform: rotateX(0deg) rotateY(0deg);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  }
+
+  /* Heading styles */
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    animation: fadeInDown 1s ease;
+  }
+
+  /* Form styles */
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #444;
+  }
+
+  input[type="text"] {
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  input[type="text"]:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 10px #007BFF33;
+    outline: none;
+  }
+
+  /* Buttons styles */
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  }
+
+  button:hover {
+    background: linear-gradient(135deg, #2575fc, #6a11cb);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+  }
+
+  /* Back link styles */
+  a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #555;
+    font-weight: bold;
+    font-size: 14px;
+    transition: color 0.3s, transform 0.2s;
+  }
+
+  a:hover {
+    color: #007BFF;
+    transform: translateY(-2px);
+  }
+
+  /* Animations */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="box">
+    <h2>Edit Student - {{ student.name }}</h2>
+    <form method="POST">
+      <label>Name:</label>
+      <input type="text" name="name" value="{{ student.name }}" required />
+
+      <label>Program:</label>
+      <input type="text" name="program" value="{{ student.program }}" required />
+
+      <label>Intake:</label>
+      <input type="text" name="intake" value="{{ student.intake }}" required />
+
+      <!-- Add other fields as needed -->
+
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+  <a href="{{ url_for('department_dashboard') }}">Back to Dashboard</a>
+</div>
+</body>
+</html>

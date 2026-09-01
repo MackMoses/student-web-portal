@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Department Dashboard</title>
+</head>
+<body>
+    <h2>System Department Dashboard</h2>
+    <p>Move your system-specific buttons here.</p>
+    <form action="{{ url_for('success_report') }}" method="get" style="display:inline;">
+        <button type="submit">Download Success Report</button>
+    </form>
+    <form action="{{ url_for('failed_report') }}" method="get" style="display:inline;">
+        <button type="submit">Download Failed Report</button>
+    </form>
+    <br><br>
+    <a href="{{ url_for('dashboard') }}">Back to Main Dashboard</a>
+</body>
+</html>

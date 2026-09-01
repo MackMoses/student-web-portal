@@ -1,0 +1,118 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .progress-container {
+            background: #ddd;
+            width: 50%;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: green;
+            color: white;
+            padding: 5px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px 0 0 5px;
+           
+        }
+
+        .signed {
+            color: green;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: red;
+            font-weight: bold;
+        }
+
+        .department-list li {
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 3px 8px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Welcome, {{ student.name }}</h1>
+    <p>Student ID: {{ student.id }}</p>
+    <p>Course: {{ student.course }}</p>
+
+    <!-- Progress -->
+    <div>
+        <h3>Document Progress</h3>
+        <p>Approved: {{ approved_documents }} / Total: {{ total_documents }}</p>
+        <div class="progress-container">
+            <div class="progress-bar">
+                {{ progress }}%
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Signatures -->
+    <div>
+        <h3>Department Signatures</h3>
+        <ul class="department-list">
+            {% set departments = [
+                {'name': 'Reception', 'attr': 'signed_reception'},
+                {'name': 'Library', 'attr': 'signed_library'},
+                {'name': 'Admission', 'attr': 'signed_admission'},
+                {'name': 'Accounts', 'attr': 'signed_accounts'},
+                {'name': 'Systems', 'attr': 'signed_systems'},
+                {'name': 'ADOSA', 'attr': 'signed_adosa'}
+            ] %}
+            
+            {% for dept in departments %}
+                <li>
+                    {{ dept.name }}: 
+                    {% if getattr(student, dept.attr, False) %}
+                        <span class="signed">Signed</span>
+                    {% else %}
+                        <span class="pending">Pending</span>
+                        <!-- Optional action button -->
+                        <form method="POST" action="{{ url_for('sign_department', dept_name=dept.name) }}" style="display:inline;">
+                            <button type="submit">Sign</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Notifications -->
+    <div>
+        <h3>Notifications</h3>
+        {% if notifications %}
+            <ul>
+                {% for note in notifications %}
+                    <li>{{ note.message }} - {{ note.status }} ({{ note.timestamp.strftime('%Y-%m-%d %H:%M') }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No new notifications.</p>
+        {% endif %}
+    </div>
+
+    <!-- Optional Download Button -->
+    {% if show_download %}
+        <div>
+            <form method="GET" action="{{ url_for('download_all_documents') }}">
+                <button type="submit">Download All Documents</button>
+            </form>
+        </div>
+    {% endif %}
+
+</body>
+</html>

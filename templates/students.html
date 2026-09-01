@@ -1,0 +1,16 @@
+<!-- templates/students.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Students List</title>
+</head>
+<body>
+    <h1>Students</h1>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.name }} - {{ student.email }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

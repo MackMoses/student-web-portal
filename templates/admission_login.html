@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Admission Login</title>
+<!-- Same styles as above -->
+<!-- ... -->
+</head>
+<body>
+<div class="container">
+  <h2>Systems Department Login</h2>
+  <form method="POST" action="{{ url_for('systems_login') }}">
+    <label for="department_id">Department ID:</label>
+    <input type="text" id="department_id" name="department_id" required />
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required />
+
+    <button type="submit">Login</button>
+  </form>
+</div>
+</body>
+</html>

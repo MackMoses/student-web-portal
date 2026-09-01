@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Accounts Report</title>
+
+    <style>
+        :root {
+            --navy: #071b35;
+            --blue: #1261a0;
+            --cyan: #27c4e8;
+            --green: #159957;
+            --red: #d64545;
+            --gold: #f4bd43;
+            --purple: #6d52ad;
+            --ink: #172033;
+            --muted: #65758b;
+            --line: #d8e4ef;
+            --sidebar-width: 246px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background: #eaf1f7;
+        }
+
+        .accounts-shell {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            min-height: 0;
+        }
+
+        .sidebar {
+            position: relative;
+            z-index: 100;
+            display: flex;
+            flex: 0 0 var(--sidebar-width);
+            flex-direction: column;
+            min-height: 0;
+            padding: 18px 13px;
+            color: #fff;
+            background: linear-gradient(180deg, #061a34, #0a3158 58%, #09233f);
+            border-right: 1px solid rgba(255,255,255,.18);
+            box-shadow: 8px 0 25px rgba(0,0,0,.18);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+            padding: 5px 7px 16px;
+            border-bottom: 1px solid rgba(255,255,255,.17);
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 39px;
+            height: 39px;
+            place-items: center;
+            color: var(--navy);
+            font-size: 19px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--gold));
+            border-radius: 11px;
+        }
+
+        .brand strong { display: block; font-size: 13px; line-height: 1.15; }
+        .brand small { display: block; margin-top: 4px; color: #a9cce1; font-size: 10px; }
+
+        .menu-label {
+            margin: 0 9px 8px;
+            color: #8fc4dd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .side-menu { display: flex; flex-direction: column; gap: 6px; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            min-height: 42px;
+            padding: 10px 12px;
+            color: #deeffa;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            text-decoration: none;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background .2s ease, transform .2s ease, color .2s ease;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            color: #fff;
+            text-decoration: none;
+            background: linear-gradient(90deg, rgba(39,196,232,.26), rgba(18,97,160,.65));
+            border-color: rgba(39,196,232,.4);
+            transform: translateX(3px);
+        }
+
+        .menu-icon { width: 24px; color: var(--gold); font-size: 16px; text-align: center; }
+        .sidebar-spacer { flex: 1 1 auto; }
+
+        .sidebar-note {
+            margin: 12px 5px 0;
+            padding: 11px;
+            color: #c1e5f3;
+            font-size: 10px;
+            line-height: 1.45;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 9px;
+        }
+
+        .main-area {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            padding: 15px 17px 16px;
+        }
+
+        .page-header {
+            position: relative;
+            z-index: 20;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-height: 78px;
+            padding: 14px 18px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 14px;
+            box-shadow: 0 9px 22px rgba(7,27,53,.23);
+        }
+
+        .page-header h1 { margin: 0 0 5px; font-size: clamp(21px, 3vw, 30px); }
+        .page-header p { margin: 0; color: #cbe1ef; font-size: 12px; }
+
+        .header-badge {
+            flex: 0 0 auto;
+            padding: 8px 11px;
+            color: var(--navy);
+            font-size: 11px;
+            font-weight: 900;
+            background: var(--gold);
+            border-radius: 999px;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            flex: 0 0 auto;
+            margin: 13px 0 11px;
+        }
+
+        .summary-card {
+            position: relative;
+            min-height: 68px;
+            padding: 12px 15px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(25,60,91,.1);
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 5px;
+            content: "";
+            background: var(--green);
+        }
+
+        .summary-card.amount::before { background: var(--gold); }
+        .summary-label { display: block; color: var(--muted); font-size: 11px; font-weight: 700; }
+        .summary-value { display: block; margin-top: 4px; color: var(--navy); font-size: 23px; font-weight: 900; }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 9px;
+            flex: 0 0 auto;
+            padding: 3px 0 11px;
+        }
+
+        .report-button,
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            padding: 8px 11px;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1.15;
+            text-align: center;
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+        }
+
+        .report-button:hover,
+        .back-button:hover {
+            color: #fff;
+            filter: brightness(1.1);
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(0,0,0,.2);
+        }
+
+        .back-button { background: var(--navy); }
+        .report-button.all { background: var(--blue); }
+        .report-button.above { background: var(--purple); }
+        .report-button.below { background: var(--red); }
+        .report-button.fifty { background: var(--green); }
+        .report-button.hundred { background: #bf7e00; }
+
+        .table-frame {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 8px 22px rgba(25,60,91,.12);
+        }
+
+        .table-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex: 0 0 auto;
+            margin-bottom: 8px;
+            padding: 0 3px 8px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .table-title h2 { margin: 0; color: var(--navy); font-size: 17px; }
+        .table-title span { color: var(--muted); font-size: 10px; }
+
+        .table-scroll {
+            flex: 1 1 auto;
+            min-width: 0;
+            min-height: 0;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 940px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+        }
+
+        th,
+        td {
+            padding: 10px 11px;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .35px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+        }
+
+        td { color: #304257; font-size: 12px; }
+        tbody tr:nth-child(even) { background: #f5f9fd; }
+        tbody tr:hover { background: #e6f7fb; }
+
+        .percentage {
+            display: inline-flex;
+            min-width: 70px;
+            justify-content: center;
+            padding: 5px 8px;
+            font-size: 10px;
+            font-weight: 900;
+            border-radius: 999px;
+        }
+
+        .percentage.p50 { color: #075c34; background: #caf1dc; }
+        .percentage.above { color: #4c3685; background: #e5dcfa; }
+        .percentage.below { color: #8a2020; background: #ffe0e0; }
+        .percentage.p100 { color: #624400; background: #ffedb5; }
+        .percentage.none { color: #6b7280; background: #edf1f5; }
+
+        .status-paid { color: var(--green); font-weight: 800; }
+        .status-pending { color: #9b6c00; font-weight: 800; }
+
+        .amount-cell {
+            color: #087443;
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .empty-row td {
+            padding: 28px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .report-message {
+            position: fixed;
+            right: 20px;
+            bottom: 18px;
+            z-index: 300;
+            display: none;
+            max-width: 360px;
+            padding: 11px 14px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--green);
+            border-radius: 8px;
+            box-shadow: 0 7px 18px rgba(0,0,0,.24);
+        }
+
+        /* ==========================================================
+           STABLE HOVER SIDEBAR AND TABLE CLEARANCE
+           ========================================================== */
+
+        .accounts-shell {
+            display: block;
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            width: var(--sidebar-width);
+            height: 100vh;
+            transform: translateX(calc(-100% + 30px));
+            transition: transform .35s cubic-bezier(.22,.61,.36,1), box-shadow .35s ease;
+        }
+
+        .sidebar::after {
+            position: absolute;
+            top: 50%;
+            right: -30px;
+            display: grid;
+            width: 30px;
+            height: 62px;
+            content: "☰";
+            place-items: center;
+            color: var(--navy);
+            font-size: 16px;
+            font-weight: 900;
+            background: linear-gradient(180deg, var(--cyan), var(--gold));
+            border: 2px solid rgba(255,255,255,.85);
+            border-left: 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 5px 0 15px rgba(0,0,0,.28);
+            transform: translateY(-50%);
+        }
+
+        .sidebar:hover,
+        .sidebar:focus-within {
+            transform: translateX(0);
+            box-shadow: 12px 0 30px rgba(0,0,0,.38);
+        }
+
+        .main-area {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            min-width: 0;
+            min-height: 0;
+            padding: 15px 17px 16px 46px;
+            overflow: hidden;
+        }
+
+        .summary-row {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .table-frame {
+            position: relative;
+            z-index: 2;
+            flex: 1 1 auto;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        .table-scroll {
+            position: relative;
+            z-index: 3;
+            display: block;
+            min-width: 0;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        @media (max-width: 850px) {
+            :root { --sidebar-width: 225px; }
+            .main-area { padding: 10px 10px 12px 42px; }
+            .page-header { align-items: flex-start; flex-direction: column; }
+            .header-badge { align-self: flex-start; }
+        }
+
+        @media (max-width: 560px) {
+            .summary-row { grid-template-columns: 1fr; }
+            .toolbar { overflow-x: auto; flex-wrap: nowrap; }
+            .toolbar > * { flex: 0 0 auto; }
+            .page-header h1 { font-size: 21px; }
+            .main-area { padding-left: 38px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="accounts-shell">
+        <aside class="sidebar" aria-label="Accounts report menu">
+            <div class="brand">
+                <div class="brand-mark">A</div>
+                <div>
+                    <strong>Accounts Office</strong>
+                    <small>Payment Reports Centre</small>
+                </div>
+            </div>
+
+            <p class="menu-label">Report Menu</p>
+            <nav class="side-menu">
+                <a href="{{ url_for('dashboard') }}" class="menu-item">
+                    <span class="menu-icon">⌂</span><span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('download_student_percentage') }}" class="menu-item report-link" data-report-name="Student Percentage Report">
+                    <span class="menu-icon">▤</span><span>Student Percentage Report</span>
+                </a>
+                <a href="{{ url_for('download_payment_percentage', percentage=75) }}" class="menu-item report-link" data-report-name="Above 50% Payment List">
+                    <span class="menu-icon">↗</span><span>Above 50%</span>
+                </a>
+                <a href="{{ url_for('download_payment_percentage', percentage=25) }}" class="menu-item report-link" data-report-name="Below 50% Payment List">
+                    <span class="menu-icon">↘</span><span>Below 50%</span>
+                </a>
+                <a href="{{ url_for('download_payment_percentage', percentage=50) }}" class="menu-item report-link" data-report-name="50% Payment List">
+                    <span class="menu-icon">50</span><span>50% Payment List</span>
+                </a>
+                <a href="{{ url_for('download_payment_percentage', percentage=100) }}" class="menu-item report-link" data-report-name="100% Payment List">
+                    <span class="menu-icon">100</span><span>100% Payment List</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-note">Hover over the menu tab to open the Accounts report controls. The page stays fixed while the main table scrolls.</div>
+        </aside>
+
+        <section class="main-area">
+            <header class="page-header">
+                <div>
+                    <h1>Students Accounts Report</h1>
+                    <p>Review recorded payment percentages and generate controlled Accounts reports.</p>
+                </div>
+                <span class="header-badge">ACCOUNTS CONTROL</span>
+            </header>
+
+            <section class="summary-row" aria-label="Accounts totals">
+                <article class="summary-card">
+                    <span class="summary-label">Total Students</span>
+                    <span class="summary-value">{{ total_students }}</span>
+                </article>
+                <article class="summary-card amount">
+                    <span class="summary-label">Total Amount Paid</span>
+                    <span class="summary-value">K {{ '%.2f'|format(total_amount_paid|float) }}</span>
+                </article>
+            </section>
+
+            <div class="toolbar" aria-label="Report actions">
+                <a href="{{ url_for('dashboard') }}" class="back-button">← Back to Dashboard</a>
+                <a href="{{ url_for('download_student_percentage') }}" class="report-button all report-link" data-report-name="Student Percentage Report">Download Student Percentage Report</a>
+                <a href="{{ url_for('download_payment_percentage', percentage=75) }}" class="report-button above report-link" data-report-name="Above 50% Payment List">Download Above 50% List</a>
+                <a href="{{ url_for('download_payment_percentage', percentage=25) }}" class="report-button below report-link" data-report-name="Below 50% Payment List">Download Below 50% List</a>
+                <a href="{{ url_for('download_payment_percentage', percentage=50) }}" class="report-button fifty report-link" data-report-name="50% Payment List">Download 50% List</a>
+                <a href="{{ url_for('download_payment_percentage', percentage=100) }}" class="report-button hundred report-link" data-report-name="100% Payment List">Download 100% List</a>
+            </div>
+
+            <section class="table-frame">
+                <div class="table-title">
+                    <h2>All Students and Recorded Payments</h2>
+                    <span id="tableState">Current data set</span>
+                </div>
+
+                <div class="table-scroll">
+                    <table id="accountsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Program</th>
+                                <th>Intake</th>
+                                <th>Paid Percentage</th>
+                                <th>Paid Status</th>
+                                <th>Total Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountsTableBody">
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.program }}</td>
+                                <td>{{ student.intake }}</td>
+                                <td>
+                                    {% set paid = student.amount_paid|int if student.amount_paid is not none else 0 %}
+                                    {% if paid == 50 %}
+                                        <span class="percentage p50">50%</span>
+                                    {% elif paid > 50 and paid < 100 %}
+                                        <span class="percentage above">Above 50%</span>
+                                    {% elif paid > 0 and paid < 50 %}
+                                        <span class="percentage below">Below 50%</span>
+                                    {% elif paid == 100 %}
+                                        <span class="percentage p100">100%</span>
+                                    {% else %}
+                                        <span class="percentage none">Not recorded</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if paid > 0 %}
+                                        <span class="status-paid">Paid</span>
+                                    {% else %}
+                                        <span class="status-pending">Payment pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="amount-cell">
+                                    K {{ '%.2f'|format(student_payment_totals.get(student.id, 0)|float) }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row"><td colspan="8">No student payment records found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div id="reportMessage" class="report-message"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tableBody = document.getElementById('accountsTableBody');
+            const tableState = document.getElementById('tableState');
+            const reportMessage = document.getElementById('reportMessage');
+
+            document.querySelectorAll('.report-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    const reportName = link.dataset.reportName || 'Report';
+                    sessionStorage.setItem('accountsLastReport', reportName);
+                    sessionStorage.setItem('accountsReportDownloadedAt', new Date().toISOString());
+
+                    if (reportMessage) {
+                        reportMessage.textContent = reportName + ' requested. Preparing a fresh data set.';
+                        reportMessage.style.display = 'block';
+                        setTimeout(function () {
+                            reportMessage.style.display = 'none';
+                        }, 2600);
+                    }
+
+                    /*
+                     * Truncate only the visible report table after a download
+                     * action. This does not delete database records. New data
+                     * appears after the Accounts page is reloaded from Flask.
+                     */
+                    setTimeout(function () {
+                        if (!tableBody) return;
+                        tableBody.innerHTML = '<tr class="empty-row"><td colspan="8">Report downloaded. The table is ready for a new data set.</td></tr>';
+                        if (tableState) tableState.textContent = 'Ready for new data set';
+                    }, 900);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!-- templates/accounts_lists.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Students Payment Lists</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+  }
+  a.button {
+    padding: 15px 30px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+  }
+  a.button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+<h1>Generate Student Payment Lists</h1>
+<div class="buttons">
+  <a class="button" href="{{ url_for('accounts_payment_list', payment_percentage=25) }}">25% List</a>
+  <a class="button" href="{{ url_for('accounts_payment_list', payment_percentage=50) }}">50% List</a>
+  <a class="button" href="{{ url_for('accounts_payment_list', payment_percentage=100) }}">100% List</a>
+</div>
+</body>
+</html>

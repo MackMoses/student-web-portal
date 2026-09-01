@@ -1,0 +1,61 @@
+<!-- templates/accounts_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accounts Payment List</title>
+    <style>
+        /* Style the button container */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        /* Style the buttons */
+        .btn {
+            background-color: #4CAF50; /* Green background */
+            color: white;             /* Text color */
+            padding: 10px 20px;       /* Padding */
+            border: none;             /* No border */
+            border-radius: 8px;       /* Rounded corners */
+            cursor: pointer;          /* Pointer cursor on hover */
+            font-size: 16px;          /* Font size */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        /* Hover effect */
+        .btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Students Payment List</h1>
+    <div class="button-container">
+        <button class="btn" onclick="window.location.href='{{ url_for('print_students', category='25') }}'">Print 25%</button>
+        <button class="btn" onclick="window.location.href='{{ url_for('print_students', category='50') }}'">Print 50%</button>
+        <button class="btn" onclick="window.location.href='{{ url_for('print_students', category='100') }}'">Print 100%</button>
+    </div>
+
+    <h2>Students who paid 25%</h2>
+    <ul>
+        {% for s in students_25 %}
+            <li>{{ s.id }} - {{ s.name }} - {{ s.email }} - {{ s.amount_paid }}%</li>
+        {% endfor %}
+    </ul>
+    <h2>Students who paid 50%</h2>
+    <ul>
+        {% for s in students_50 %}
+            <li>{{ s.id }} - {{ s.name }} - {{ s.email }} - {{ s.amount_paid }}%</li>
+        {% endfor %}
+    </ul>
+    <h2>Students who paid 100%</h2>
+    <ul>
+        {% for s in students_100 %}
+            <li>{{ s.id }} - {{ s.name }} - {{ s.email }} - {{ s.amount_paid }}%</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

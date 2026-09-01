@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Clearance | Rockview University</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            color: #1d2b3a;
+            background:
+                linear-gradient(125deg, rgba(0, 30, 65, .92), rgba(14, 93, 145, .78), rgba(0, 30, 65, .92)),
+                url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover no-repeat fixed;
+            background-size: 220% 220%, cover;
+            font-family: Arial, Helvetica, sans-serif;
+            animation: backgroundFlow 18s ease-in-out infinite alternate;
+        }
+
+        .page-shell {
+            width: 100%;
+            max-width: 780px;
+            transform: scale(var(--fit-scale, 1));
+            transform-origin: center center;
+            animation: pageEntrance .8s ease-out both;
+        }
+
+        .clearance-card {
+            overflow: hidden;
+            background: rgba(255, 255, 255, .98);
+            border: 1px solid rgba(255, 255, 255, .92);
+            border-radius: 16px;
+            box-shadow: 0 22px 55px rgba(0, 0, 0, .34);
+            animation: cardGlow 5s ease-in-out infinite;
+        }
+
+        .page-header {
+            position: relative;
+            padding: 17px 25px 21px;
+            color: #fff;
+            text-align: center;
+            background: linear-gradient(135deg, #003366, #1266a1, #003366);
+            background-size: 220% 220%;
+            animation: headerFlow 9s ease-in-out infinite;
+        }
+
+        .page-header::after {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #c58b20, #ffe18a, #c58b20, #ffe18a, #c58b20);
+            background-size: 300% 100%;
+            content: "";
+            animation: goldFlow 5s linear infinite;
+        }
+
+        .institution-logo {
+            display: block;
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 8px;
+            object-fit: contain;
+            background: #fff;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(255,255,255,.25), 0 5px 15px rgba(0,0,0,.25);
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        .university-name {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(21px, 4vw, 30px);
+            letter-spacing: 1px;
+        }
+
+        .page-title {
+            margin: 7px 0 0;
+            color: #e8f2fa;
+            font-size: clamp(15px, 3vw, 20px);
+            font-weight: normal;
+            letter-spacing: .4px;
+        }
+
+        .content { padding: 22px 30px 25px; }
+
+        .student-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 19px;
+            padding: 14px 17px;
+            background: #f1f7fc;
+            border: 1px solid #d3e3ef;
+            border-left: 5px solid #1266a1;
+            border-radius: 10px;
+            animation: panelPulse 6s ease-in-out infinite;
+        }
+
+        .student-label {
+            margin-bottom: 4px;
+            color: #6d7f8e;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .student-name {
+            color: #003366;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .student-id {
+            color: #405568;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .instruction {
+            margin: 0 0 14px;
+            color: #405568;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .option {
+            position: relative;
+            display: flex;
+            min-height: 157px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 19px 14px 16px;
+            color: #264256;
+            background: #fff;
+            border: 2px solid #d5e0e8;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+            animation: optionFloat 5s ease-in-out infinite;
+        }
+
+        .option:nth-child(2) { animation-delay: .7s; }
+        .option:nth-child(3) { animation-delay: 1.4s; }
+
+        .option:hover {
+            transform: translateY(-6px) scale(1.02);
+            border-color: #3e8fc4;
+            background: #f7fbff;
+            box-shadow: 0 12px 24px rgba(0, 67, 117, .18);
+        }
+
+        .option:has(input:checked) {
+            transform: translateY(-5px) scale(1.02);
+            color: #003366;
+            background: linear-gradient(145deg, #eaf6ff, #fff);
+            border-color: #1266a1;
+            box-shadow: 0 0 0 4px rgba(18, 102, 161, .13), 0 13px 26px rgba(0, 67, 117, .18);
+        }
+
+        .option input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
+        .option-check {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            width: 21px;
+            height: 21px;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            background: #fff;
+            border: 2px solid #aebdca;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .option:has(input:checked) .option-check {
+            color: #fff;
+            background: #1266a1;
+            border-color: #1266a1;
+            animation: checkPop .35s ease-out;
+        }
+
+        .option-icon {
+            display: flex;
+            width: 50px;
+            height: 50px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 11px;
+            color: #1266a1;
+            background: #eaf5fc;
+            border: 1px solid #cce3f1;
+            border-radius: 50%;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 21px;
+            font-weight: bold;
+            animation: iconSpin 8s linear infinite;
+        }
+
+        .option:has(input:checked) .option-icon {
+            color: #fff;
+            background: #1266a1;
+            border-color: #1266a1;
+            animation: iconPulse .5s ease-out;
+        }
+
+        .option-title {
+            display: block;
+            color: #123b6d;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1.25;
+        }
+
+        .option-description {
+            display: block;
+            margin-top: 6px;
+            color: #687987;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .program-selector {
+            margin: 0 0 16px;
+            padding: 13px;
+            background: linear-gradient(135deg, #f7fbff, #eef7fc);
+            border: 1px solid #cbdfea;
+            border-radius: 11px;
+        }
+
+        .program-heading,
+        .option-section-title {
+            margin-bottom: 9px;
+            color: #003366;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: .5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .program-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .program-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #264256;
+            background: #fff;
+            border: 2px solid #d5e0e8;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .program-option:hover {
+            transform: translateY(-2px);
+            border-color: #3e8fc4;
+            box-shadow: 0 7px 15px rgba(0, 67, 117, .12);
+        }
+
+        .program-option:has(input:checked) {
+            border-color: #1266a1;
+            box-shadow: 0 0 0 3px rgba(18, 102, 161, .12);
+        }
+
+        .program-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: #1266a1;
+        }
+
+        .program-option strong,
+        .program-option small {
+            display: block;
+        }
+
+        .program-option strong {
+            color: #123b6d;
+            font-size: 12px;
+        }
+
+        .program-option small {
+            margin-top: 3px;
+            color: #687987;
+            font-size: 10px;
+        }
+
+        .program-icon {
+            display: flex;
+            width: 31px;
+            height: 31px;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: #1266a1;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .programme-options[hidden] {
+            display: none;
+        }
+
+        .option-section-title {
+            margin: 3px 0 9px;
+        }
+
+        .health-options-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .selection-message {
+            min-height: 18px;
+            margin: 13px 0 0;
+            color: #1266a1;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 13px 18px;
+            color: #fff;
+            background: linear-gradient(135deg, #1266a1, #003f70, #1266a1);
+            background-size: 200% 100%;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: .3px;
+            transition: transform .2s ease, box-shadow .2s ease;
+            animation: buttonFlow 4s linear infinite;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 57, 103, .28);
+        }
+
+        .submit-btn:active { transform: translateY(0); }
+
+        .footer-note {
+            margin: 12px 0 0;
+            color: #7b8d9b;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        @keyframes pageEntrance { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes backgroundFlow { from { background-position: 0% 50%, center; } to { background-position: 100% 50%, center; } }
+        @keyframes headerFlow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes goldFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+        @keyframes logoFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(2deg); } }
+        @keyframes cardGlow { 0%,100% { box-shadow: 0 22px 55px rgba(0,0,0,.34); } 50% { box-shadow: 0 22px 60px rgba(0,91,150,.45); } }
+        @keyframes panelPulse { 0%,100% { border-left-color: #1266a1; } 50% { border-left-color: #d29b26; } }
+        @keyframes optionFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+        @keyframes checkPop { 0% { transform: scale(.6); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes iconPulse { 0% { transform: scale(.8); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes iconSpin { from { box-shadow: 0 0 0 0 rgba(18,102,161,0); } 50% { box-shadow: 0 0 0 5px rgba(18,102,161,.08); } to { box-shadow: 0 0 0 0 rgba(18,102,161,0); } }
+        @keyframes buttonFlow { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+
+        @media (max-width: 680px) {
+            body { padding: 8px; }
+            .content { padding: 17px 16px 19px; }
+            .page-header { padding: 12px 18px 16px; }
+            .institution-logo { width: 53px; height: 53px; margin-bottom: 5px; }
+            .student-panel { align-items: flex-start; flex-direction: column; gap: 6px; margin-bottom: 15px; padding: 11px 13px; }
+            .student-id { white-space: normal; }
+                        .program-grid,
+            .health-options-grid,
+            .options-grid { grid-template-columns: 1fr; gap: 9px; }
+            .option { min-height: 78px; flex-direction: row; justify-content: flex-start; padding: 12px 38px 12px 13px; text-align: left; }
+            .option-icon { flex: 0 0 auto; width: 39px; height: 39px; margin: 0 12px 0 0; font-size: 17px; }
+            .option-title { font-size: 14px; }
+            .option-description { margin-top: 3px; font-size: 10px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page-shell" id="pageShell">
+        <section class="clearance-card" aria-labelledby="page-title">
+            <header class="page-header">
+                <img
+                    class="institution-logo"
+                    src="{{ url_for('static', filename='imgs/OIP.jpeg') }}"
+                    alt="Rockview University logo"
+                    onerror="this.style.display='none';"
+                >
+                <h1 class="university-name">ROCKVIEW UNIVERSITY</h1>
+                <h2 id="page-title" class="page-title">Online Clearance Request</h2>
+            </header>
+
+            <div class="content">
+                <div class="student-panel">
+                    <div>
+                        <div class="student-label">Student name</div>
+                        <div class="student-name">{{ student.name }}</div>
+                    </div>
+                    <div class="student-id">
+                        <strong>Student ID:</strong> {{ student.id }}
+                    </div>
+                </div>
+
+                <p class="instruction">First select your school, then choose the clearance form you want to request.</p>
+
+                <div class="program-selector" role="group" aria-labelledby="program-heading">
+                    <div id="program-heading" class="program-heading">Select School / Programme</div>
+                    <div class="program-grid">
+                        <label class="program-option">
+                            <input type="radio" name="clearance_program" value="humanities" form="clearanceForm" required>
+                            <span class="program-icon">H</span>
+                            <span>
+                                <strong>School of Humanities</strong>
+                                <small>Humanities clearance forms</small>
+                            </span>
+                        </label>
+
+                        <label class="program-option">
+                            <input type="radio" name="clearance_program" value="health_sciences" form="clearanceForm" required>
+                            <span class="program-icon">HS</span>
+                            <span>
+                                <strong>School of Health Sciences</strong>
+                                <small>Nurses and C.O.G programmes</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('request_clearance') }}" id="clearanceForm" autocomplete="off">
+                    <div id="humanitiesOptions" class="programme-options" hidden>
+                        <div class="option-section-title">Humanities Clearance Type</div>
+                        <div class="options-grid">
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="mid-term" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">M</span>
+                                <span>
+                                    <span class="option-title">MID-TERM TEST</span>
+                                    <span class="option-description">Request clearance for the Mid-Term Test.</span>
+                                </span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="end-of-term" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">E</span>
+                                <span>
+                                    <span class="option-title">END-OF-TERM TEST</span>
+                                    <span class="option-description">Request clearance for the End-of-Term Test.</span>
+                                </span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="examination" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">X</span>
+                                <span>
+                                    <span class="option-title">EXAMINATION</span>
+                                    <span class="option-description">Request clearance for the Examination.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="healthOptions" class="programme-options" hidden>
+                        <div class="option-section-title">Health Sciences Clearance Type</div>
+                        <div class="options-grid health-options-grid">
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="mock" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">M</span>
+                                <span>
+                                    <span class="option-title">MOCK EXAMINATION</span>
+                                    <span class="option-description">Mock Examination Clearance Form — Undergraduate Studies.</span>
+                                </span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="cat1" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">C1</span>
+                                <span>
+                                    <span class="option-title">CAT1 / MOCK EXAMINATIONS</span>
+                                    <span class="option-description">New / Returning Students Clearance Form — Undergraduate Studies.</span>
+                                </span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="cat2" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">C2</span>
+                                <span>
+                                    <span class="option-title">CAT2 / EXAMINATION</span>
+                                    <span class="option-description">CAT2 Examination Clearance Form — Undergraduate Studies.</span>
+                                </span>
+                            </label>
+
+                            <label class="option">
+                                <input type="radio" name="clearance_type" value="end_of_semester_examination" disabled>
+                                <span class="option-check">✓</span>
+                                <span class="option-icon">E</span>
+                                <span>
+                                    <span class="option-title">END-OF-SEMESTER EXAMINATION</span>
+                                    <span class="option-description">End-of-Semester Examination Clearance Form — Undergraduate Studies.</span>
+                                </span>
+                            </label>
+                        </div>
+                                        </div>
+
+                    <div id="selectionMessage" class="selection-message" aria-live="polite"></div>
+
+                    <button type="submit" class="submit-btn">SUBMIT CLEARANCE REQUEST</button>
+                </form>
+
+                <p class="footer-note">Please review your selection before submitting the request.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    const programInputs = document.querySelectorAll(
+        'input[name="clearance_program"]'
+    );
+
+    const clearanceInputs = document.querySelectorAll(
+        'input[name="clearance_type"]'
+    );
+
+    const humanitiesOptions = document.getElementById(
+        "humanitiesOptions"
+    );
+
+    const healthOptions = document.getElementById(
+        "healthOptions"
+    );
+
+    const selectionMessage = document.getElementById(
+        "selectionMessage"
+    );
+
+    const clearanceForm = document.getElementById(
+        "clearanceForm"
+    );
+
+    let lastSelectedClearance = null;
+
+    const selectionMessages = {
+        "mid-term": "Humanities Mid-Term Test clearance selected",
+        "end-of-term": "Humanities End-of-Term Test clearance selected",
+        "examination": "Humanities Examination clearance selected",
+        "mock": "Health Sciences Mock Examination clearance selected",
+        "cat1": "Health Sciences CAT1 / Mock Examinations clearance selected",
+        "cat2": "Health Sciences CAT2 / Examination clearance selected",
+        "end_of_semester_examination": "Health Sciences End-of-Semester Examination clearance selected"
+
+    };
+
+    function setProgramme(programme) {
+        const isHumanities = programme === "humanities";
+        const isHealth = programme === "health_sciences";
+
+        humanitiesOptions.hidden = !isHumanities;
+        healthOptions.hidden = !isHealth;
+
+        clearanceInputs.forEach(function (input) {
+            const belongsToHumanities = humanitiesOptions.contains(input);
+            const belongsToHealth = healthOptions.contains(input);
+            const enabled =
+                (isHumanities && belongsToHumanities) ||
+                (isHealth && belongsToHealth);
+
+            input.disabled = !enabled;
+
+            if (!enabled) {
+                input.checked = false;
+
+                const card = input.closest(".option");
+                if (card) {
+                    card.classList.remove("selected");
+                }
+
+                if (lastSelectedClearance === input) {
+                    lastSelectedClearance = null;
+                }
+            }
+        });
+
+        selectionMessage.textContent = isHumanities
+            ? "School of Humanities selected. Choose a Humanities clearance type."
+            : "School of Health Sciences selected. Choose a Health Sciences clearance type.";
+    }
+
+    programInputs.forEach(function (input) {
+        input.addEventListener("change", function () {
+            setProgramme(input.value);
+        });
+    });
+
+    document.querySelectorAll(".option").forEach(function (card) {
+        const input = card.querySelector(
+            'input[name="clearance_type"]'
+        );
+
+        if (!input) {
+            return;
+        }
+
+        card.addEventListener("click", function (event) {
+            // Prevent the normal radio-label behavior so the same option
+            // can be selected and then unticked with a second click.
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (input.disabled) {
+                return;
+            }
+
+            if (input.checked) {
+                input.checked = false;
+                card.classList.remove("selected");
+                lastSelectedClearance = null;
+
+                selectionMessage.textContent =
+                    "Clearance option cleared. Select an option to continue.";
+
+                return;
+            }
+
+            clearanceInputs.forEach(function (otherInput) {
+                otherInput.checked = false;
+
+                const otherCard = otherInput.closest(".option");
+                if (otherCard) {
+                    otherCard.classList.remove("selected");
+                }
+            });
+
+            input.checked = true;
+            card.classList.add("selected");
+            lastSelectedClearance = input;
+
+            selectionMessage.textContent =
+                selectionMessages[input.value] ||
+                "Clearance option selected";
+        });
+    });
+
+    if (clearanceForm) {
+        clearanceForm.addEventListener("submit", function (event) {
+            const selectedProgram = document.querySelector(
+                'input[name="clearance_program"]:checked'
+            );
+
+            const selectedType = document.querySelector(
+                'input[name="clearance_type"]:checked:not(:disabled)'
+            );
+
+            if (!selectedProgram || !selectedType) {
+                event.preventDefault();
+
+                selectionMessage.textContent =
+                    "Please select a school and a clearance type before submitting.";
+
+                alert(
+                    "Please select a school and a clearance type before submitting."
+                );
+
+                return;
+            }
+
+            // Do not call event.preventDefault() here. The browser must
+            // continue with the normal POST to Flask.
+            selectionMessage.textContent =
+                "Submitting your clearance request...";
+        });
+    }
+
+    // Start with both option groups closed. The programme selection opens
+    // only the group that belongs to the selected school.
+    humanitiesOptions.hidden = true;
+    healthOptions.hidden = true;
+
+    function fitPageToViewport() {
+        const shell = document.getElementById("pageShell");
+        if (!shell) {
+            return;
+        }
+
+        shell.style.setProperty("--fit-scale", "1");
+
+        const availableHeight = Math.max(1, window.innerHeight - 16);
+        const availableWidth = Math.max(1, window.innerWidth - 16);
+        const naturalHeight = shell.scrollHeight;
+        const naturalWidth = shell.scrollWidth;
+
+        const scale = Math.min(
+            1,
+            availableHeight / naturalHeight,
+            availableWidth / naturalWidth
+        );
+
+        shell.style.setProperty("--fit-scale", String(scale));
+    }
+
+    window.addEventListener("load", fitPageToViewport);
+    window.addEventListener("resize", fitPageToViewport);
+    window.setTimeout(fitPageToViewport, 100);
+</script>
+
+</body>
+</html>

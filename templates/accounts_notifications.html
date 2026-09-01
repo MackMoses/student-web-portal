@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts Notifications</title>
+  <style>
+    :root{--blue:#1268d4;--red:#dc2626;--green:#16803c;--ink:#102a43;--muted:#64748b}
+    *{box-sizing:border-box}
+    body{margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:linear-gradient(135deg,#eaf3ff,#f8fbff 48%,#edf9f4)}
+    .container{max-width:1150px;margin:auto}
+    .topbar{position:sticky;top:10px;z-index:20;margin-bottom:16px;padding:15px;border:1px solid #dbe6f2;border-radius:16px;background:rgba(255,255,255,.97);box-shadow:0 10px 28px rgba(16,42,67,.12)}
+    .title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    h1{margin:0;font-size:clamp(1.35rem,3vw,2rem)}
+    .live{display:flex;align-items:center;gap:7px;color:var(--green);font-size:.85rem;font-weight:700}
+    .live-dot{width:10px;height:10px;border-radius:50%;background:#16a34a;animation:pulse 1.8s infinite}
+    #searchInput{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+    .summary{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:11px;color:var(--muted);font-size:.9rem}
+    .badge{padding:6px 10px;border-radius:999px;background:#e8f1ff;color:#0b5cad;font-weight:700}
+    .legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
+    .legend-item{display:flex;align-items:center;gap:5px;font-size:.8rem}
+    .dot{display:inline-block;width:11px;height:11px;border-radius:50%;flex:none}
+    .dot-blue{background:#1677e8;box-shadow:0 0 0 3px rgba(22,119,232,.14)}
+    .dot-red{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.14)}
+    .dot-gray{background:#94a3b8}
+    .back-btn{display:inline-block;margin:0 0 14px;padding:10px 18px;border-radius:8px;background:#dc2626;color:#fff;text-decoration:none;font-weight:700}
+    .table-container{overflow:auto;max-height:calc(100vh - 220px);border:1px solid #dbe6f2;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(16,42,67,.1)}
+    table{width:100%;min-width:980px;border-collapse:separate;border-spacing:0}
+    th{position:sticky;top:0;z-index:5;padding:13px 12px;background:#1268d4;color:#fff;text-align:left;font-size:.9rem}
+    td{padding:13px 12px;border-bottom:1px solid #e5e7eb;vertical-align:top;font-size:.92rem}
+    tr.unread{background:#eff6ff;animation:rowIn .45s ease both}
+    tr.attention{background:#fff1f2}
+    .student-cell{display:flex;align-items:center;gap:8px;min-width:180px;font-weight:800}
+    .student-name{display:flex;flex-direction:column;gap:3px}
+    .source-label{font-size:.72rem;color:#64748b;font-weight:600}
+    .status{display:inline-flex;align-items:center;padding:6px 9px;border-radius:7px;font-weight:800;font-size:.8rem}
+    .pending{background:#fff0d6;color:#9a4f00}.attention-status{background:#fee2e2;color:#991b1b}.read-status{background:#dcfce7;color:#166534}
+    .email-link{color:#1268d4;font-weight:700;text-decoration:underline}
+    .email-button{display:inline-block;margin-top:7px;padding:6px 10px;border-radius:6px;background:#16a34a;color:#fff;text-decoration:none;font-size:.78rem;font-weight:700}
+    .read-btn{padding:7px 10px;border:0;border-radius:6px;background:#102a43;color:#fff;cursor:pointer;font-size:.78rem;font-weight:700}
+    .read-btn:disabled{background:#94a3b8;cursor:default}
+    .empty{padding:28px;text-align:center;color:#64748b}
+    .error{padding:14px;margin-bottom:12px;border-radius:8px;background:#fee2e2;color:#991b1b;font-weight:700}
+    #toastContainer{position:fixed;right:22px;bottom:22px;z-index:50;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 44px))}
+    .toast{padding:14px 16px;border:1px solid #bfdbfe;border-left:5px solid #1677e8;border-radius:12px;background:#fff;box-shadow:0 14px 30px rgba(16,42,67,.18);animation:toastIn .35s ease both}
+    .toast.red{border-color:#fecaca;border-left-color:#dc2626}
+    .toast-close{float:right;border:0;background:transparent;color:#64748b;cursor:pointer;font-size:18px}
+    .toast-title{font-weight:900}.toast-message{margin-top:5px;color:#475569;font-size:.86rem}
+    .zambia-time {
+  min-width: 180px;
+  color: #102a43;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}70%{box-shadow:0 0 0 8px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+    @keyframes rowIn{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes toastIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+    @media(max-width:700px){body{padding:10px}.title-row{align-items:flex-start;flex-direction:column}.legend{margin-left:0}.table-container{max-height:calc(100vh - 250px)}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="topbar">
+      <div class="title-row">
+        <h1>Accounts Notifications</h1>
+        <span class="live"><span class="live-dot"></span>Live monitoring active</span>
+      </div>
+      <input id="searchInput" type="search" placeholder="Search student ID, name, email or message..." autocomplete="off">
+      <div class="summary">
+        <span class="badge">Unread requests: <strong id="unreadCount">0</strong></span>
+        <span id="lastUpdated">Connecting...</span>
+        <span class="legend">
+          <span class="legend-item"><span class="dot dot-blue"></span>New request</span>
+          <span class="legend-item"><span class="dot dot-red"></span>Attention required</span>
+          <span class="legend-item"><span class="dot dot-gray"></span>Read</span>
+        </span>
+      </div>
+    </section>
+
+    <a href="/department_dashboard" class="back-btn">Back</a>
+    <div id="errorBox" class="error" hidden></div>
+
+    <section class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Source Student</th>
+            <th>Title</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Date and Time — Zambia</th>
+            <th>Student Email</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="notificationsBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty">Loading notifications...</div>
+    </section>
+  </main>
+
+  <div id="toastContainer" aria-live="polite"></div>
+
+  <script>
+    const NOTIFICATIONS_API_URL = '/api/accounts/notifications';
+    const MARK_READ_URL = id => `/accounts/notifications/${encodeURIComponent(id)}/read`;
+    const POLL_INTERVAL_MS = 5000;
+    const knownIds = new Set();
+    let firstPoll = true;
+
+    const body = document.getElementById('notificationsBody');
+    const searchInput = document.getElementById('searchInput');
+    const unreadCount = document.getElementById('unreadCount');
+    const lastUpdated = document.getElementById('lastUpdated');
+    const emptyState = document.getElementById('emptyState');
+    const errorBox = document.getElementById('errorBox');
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[char]));
+    }
+
+    function isAttention(item) {
+      const text = `${item.title || ''} ${item.message || ''}`.toLowerCase();
+      return /urgent|reject|failed|error|attention/.test(text);
+    }
+
+  function formatDate(value) {
+  if (!value) return "Time unavailable";
+  return String(value);
+}
+    function rowHtml(item) {
+      const id = String(item.id);
+      const student = item.student_name || item.student_email || 'Student';
+      const email = item.student_email || '';
+      const read = Boolean(item.is_read);
+      const attention = isAttention(item);
+      const rowClass = read ? '' : (attention ? 'unread attention' : 'unread');
+      const dotClass = read ? 'dot-gray' : (attention ? 'dot-red' : 'dot-blue');
+      const statusClass = read ? 'read-status' : (attention ? 'attention-status' : 'pending');
+      const statusText = read ? 'Read' : (attention ? 'Attention' : 'Pending');
+      const emailHtml = email
+        ? `<a class="email-link" href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(email )}" target="_blank" rel="noopener noreferrer">${escapeHtml(email)}</a>  
+<a class="email-button" href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(email )}" target="_blank" rel="noopener noreferrer">Send Email</a>`
+        : '<span style="color:#999">No Email</span>';
+
+      return `
+        <tr class="${rowClass}" data-id="${escapeHtml(id)}" data-read="${read}">
+          <td>
+            <div class="student-cell">
+              <span class="dot ${dotClass}"></span>
+              <span class="student-name">
+                <span>${escapeHtml(student)}</span>
+                <span class="source-label">Student clearance request</span>
+              </span>
+            </div>
+          </td>
+          <td>${escapeHtml(item.title)}</td>
+          <td>${escapeHtml(item.message)}</td>
+          <td><span class="status ${statusClass}">${statusText}</span></td>
+          <td class="zambia-time">
+             ${escapeHtml(item.created_at_zambia || "Time unavailable")}</td>
+
+          <td>${emailHtml}</td>
+          <td><button class="read-btn" type="button" onclick="markAsRead('${escapeHtml(id)}', this)" ${read ? 'disabled' : ''}>${read ? 'Read' : 'Mark as read'}</button></td>
+        </tr>`;
+    }
+
+    function showToast(item) {
+      const attention = isAttention(item);
+      const toast = document.createElement('div');
+      toast.className = `toast ${attention ? 'red' : ''}`;
+      toast.innerHTML = `
+        <button class="toast-close" aria-label="Close">×</button>
+        <div class="toast-title">
+          <span class="dot ${attention ? 'dot-red' : 'dot-blue'}"></span>
+          New request from ${escapeHtml(item.student_name || item.student_email || 'Student')}
+        </div>
+        <div class="toast-message">${escapeHtml(item.title || 'Clearance request')} — ${escapeHtml(item.message || 'A new request requires review.')}</div>`;
+      toast.querySelector('.toast-close').onclick = () => toast.remove();
+      document.getElementById('toastContainer').prepend(toast);
+      setTimeout(() => toast.remove(), 9000);
+    }
+
+    function updateSummary(items) {
+      unreadCount.textContent = items.filter(item => !item.is_read).length;
+      emptyState.hidden = items.length > 0;
+    }
+
+    function applySearch() {
+      const filter = searchInput.value.toLowerCase().trim();
+      const rows = [...body.querySelectorAll('tr')];
+      rows.forEach(row => {
+        row.hidden = !row.textContent.toLowerCase().includes(filter);
+      });
+      emptyState.hidden = rows.some(row => !row.hidden);
+      if (!rows.length) emptyState.hidden = false;
+    }
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch(NOTIFICATIONS_API_URL, {
+          headers:{Accept:'application/json'},
+          cache:'no-store'
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        const items = Array.isArray(data) ? data : (data.notifications || []);
+
+        items.forEach(item => {
+          const id = String(item.id);
+          if (!firstPoll && !knownIds.has(id)) showToast(item);
+          knownIds.add(id);
+        });
+
+        body.innerHTML = items.map(rowHtml).join('');
+        updateSummary(items);
+        applySearch();
+        errorBox.hidden = true;
+        lastUpdated.textContent = `Last checked: ${new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Africa/Lusaka',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+}).format(new Date())} Zambia time`;
+
+        firstPoll = false;
+      } catch (error) {
+        errorBox.textContent = 'The notification API is not reachable. Check /api/accounts/notifications.';
+        errorBox.hidden = false;
+        lastUpdated.textContent = 'Waiting for API connection...';
+        console.error(error);
+      }
+    }
+
+    async function markAsRead(id, button) {
+      button.disabled = true;
+      try {
+        const response = await fetch(MARK_READ_URL(id), {
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'}
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        await loadNotifications();
+      } catch (error) {
+        button.disabled = false;
+        alert('The notification could not be marked as read. Please try again.');
+        console.error(error);
+      }
+    }
+
+    searchInput.addEventListener('input', applySearch);
+    loadNotifications();
+    setInterval(loadNotifications, POLL_INTERVAL_MS);
+  </script>
+</body>
+</html>

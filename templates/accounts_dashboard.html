@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accounts Department Dashboard</title>
+</head>
+<body>
+    <h2>Accounts Department Dashboard</h2>
+    <form action="{{ url_for('accounts_report') }}" method="get" style="display:inline;">
+        <button type="submit">View Accounts Report</button>
+    </form>
+    <br><br>
+    <a href="{{ url_for('dashboard') }}">Back to Main Dashboard</a>
+</body>
+</html>

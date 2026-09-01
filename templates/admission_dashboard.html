@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Department Dashboard</title>
+<style>
+  /* Style for the entire dashboard */
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+  }
+  body {
+  min-height: 100vh;
+  margin: 0;
+  background-image: url('static/imgs/Rockbg.jpg');
+  background-size: cover;
+  background-position: center;
+}
+  
+  /* Header section with title and search */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+  }
+  /* Search form styling */
+  .search-form {
+    display: flex;
+    align-items: center;
+  }
+  .search-form input[type="text"] {
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s;
+  }
+  .search-form input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  .search-form button {
+    padding: 8px 16px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  .search-form button:hover {
+    background-color: #0069d9;
+    transform: translateY(-2px);
+  }
+
+  /* Buttons container below header */
+  .btn-container {
+    text-align: center;
+    margin: 10px 0 20px 0;
+  }
+  /* Common button styles */
+  .btn {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+  /* Specific button styles and animations for Logout and Notification */
+  .btn-logout {
+    background-color: #dc3545; /* Red */
+  }
+  .btn-logout:hover {
+    background-color: #a71d2a;
+    transform: translateY(-2px);
+  }
+  .btn-notify {
+    background-color: #17a2b8; /* Teal */
+  }
+  .btn-notify:hover {
+    background-color: #117a8b;
+    transform: translateY(-2px);
+  }
+
+  /* Table styling remains the same */
+  table {
+    width: 80%;
+    margin: auto;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  thead {
+    background-color: #007bff;
+    color: white;
+  }
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+  }
+  th {
+    background-color: #0069d9;
+  }
+  tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  /* Sign Button */
+button[type="submit"].sign {
+  padding: 8px 16px;
+  background-color: #28a745; /* Green */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button[type="submit"].sign:hover {
+  background-color: #218838; /* Darker green on hover */
+  transform: translateY(-1px);
+}
+
+/* Edit Button */
+button.edit {
+  padding: 8px 14px;
+  background-color: #ffc107; /* Amber/Yellow */
+  color: #212529;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button.edit:hover {
+  background-color: #e0a800; /* Darker amber */
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+button.delete {
+  padding: 8px 14px;
+  background-color: #dc3545; /* Red */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button.delete:hover {
+  background-color: #a71d2a; /* Darker red */
+  transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+<!-- Header with title and search -->
+<div class="header">
+  <h2>Department Dashboard - {{ department_id.upper() }}</h2>
+  <!-- Search form -->
+  <form class="search-form" method="GET" action="{{ url_for('department_dashboard') }}">
+    <input type="text" name="search_query" placeholder="Search by StudentID or Email" value="{{ request.args.get('search_query', '') }}" />
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<!-- Buttons for logout and notifications only -->
+<div class="btn-container">
+    <a href="{{ url_for('department_logout') }}" class="btn btn-logout">Logout</a> 
+    <a href="{{ url_for('accounts_notifications') }}" class="btn btn-notify">Notifications</a>
+</div>
+
+<!-- Table displaying students -->
+<table border="1" cellpadding="8" cellspacing="0" id="studentTable">
+    <thead>
+        <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Intake</th>
+            <th>Signature Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.id }}</td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.program }}</td>
+            <td>{{ student.intake }}</td>
+            <td>
+                {% if student['signed_' + department_id] %}
+                    Signed
+                {% else %}
+                    Pending
+                {% endif %}
+            </td>
+            <td>
+                {% if not student['signed_' + department_id] %}
+                    {% if department_id == "accounts" %}
+                        <a href="{{ url_for('accountant_payment', student_id=student.id) }}" class="btn btn-success">Process Payment</a>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('sign_student', student_id=student.id, department=department_id) }}" style="display:inline;">
+                            <button type="submit" class="sign">Sign</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <span style="color:green;font-weight:bold;">✓ Signed</span>
+                {% endif %}
+                <form method="GET" action="{{ url_for('edit_student', student_id=student.id) }}" style="display:inline;">
+                    <button type="submit" class="edit">Edit</button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_student', student_id=student.id) }}" style="display:inline;">
+                    <button type="submit" class="delete" onclick="return confirm('Delete this student?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Add a "Close" Button below the table -->
+<div style="text-align: center; margin-top: 20px;">
+  <button id="closeBtn" class="btn btn-danger" style="display:none;">Close</button>
+</div>
+
+<!-- Optional: Student Details Display (hidden initially) -->
+<div id="studentDetails" style="display:none; padding:20px; margin:20px; border:1px solid #ccc; background:#fff;">
+  <!-- Student info will be injected here if needed -->
+</div>
+
+<!-- JavaScript for handling view toggling -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Handle the "Close" button click
+  $('#closeBtn').click(function() {
+    $('#studentDetails').hide();
+    $('#studentTable').show();
+    $('#closeBtn').hide();
+  });
+});
+</script>
+</body>
+</html>

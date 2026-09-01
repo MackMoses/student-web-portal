@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071a3d" />
+  <title>Student Login | Rockview University</title>
+
+  <style>
+    :root {
+      --navy: #071a3d;
+      --blue: #155eef;
+      --blue-dark: #0b3da8;
+      --gold: #f6c453;
+      --ink: #17233c;
+      --muted: #69748b;
+      --white: #ffffff;
+      --line: #dfe5f0;
+      --danger: #b42318;
+      --shadow: 0 24px 60px rgba(3, 17, 49, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+
+    body {
+      min-height: 100dvh;
+      height: 100dvh;
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #071a3d url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover fixed no-repeat;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(120deg, rgba(5, 21, 52, .94), rgba(15, 77, 161, .68));
+    }
+
+    /* The welcome overlay remains visible for 4.5 seconds. */
+    .welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      text-align: center;
+      background: radial-gradient(circle at 50% 40%, #123e85 0%, #071a3d 68%);
+      animation: welcomeExit 900ms ease 3.6s forwards;
+    }
+
+    .welcome-content { animation: welcomeEnter 1100ms cubic-bezier(.2,.8,.2,1) both; }
+
+    .welcome-logo,
+    .brand-logo {
+      display: block;
+      object-fit: contain;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 0 0 8px rgba(246,196,83,.16), 0 18px 45px rgba(0,0,0,.3);
+    }
+
+    .welcome-logo {
+      width: 122px;
+      height: 122px;
+      margin: 0 auto 24px;
+      padding: 10px;
+      animation: logoPulse 1800ms ease-in-out infinite;
+    }
+
+    .welcome-kicker {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .welcome-content h1 { margin: 0; font-size: clamp(2.6rem, 8vw, 5.3rem); line-height: 1; letter-spacing: -.06em; }
+    .welcome-content p { margin: 18px 0 0; color: #dbe8ff; font-size: 1.05rem; }
+
+    .page-shell {
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      padding: 16px 20px 72px;
+      opacity: 0;
+      animation: pageReveal 800ms ease 3.85s forwards;
+    }
+
+    .login-card {
+      width: min(100%, 980px);
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 28px;
+      background: rgba(255,255,255,.96);
+      box-shadow: var(--shadow);
+      max-height: calc(100dvh - 88px);
+    }
+
+    .card-intro {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      padding: 32px 42px;
+      color: var(--white);
+      background: linear-gradient(150deg, rgba(8,37,87,.98), rgba(16,92,193,.92));
+    }
+
+    .card-intro h1 { max-width: 320px; margin: 42px 0 16px; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.03; letter-spacing: -.05em; }
+    .card-intro p { max-width: 310px; margin: 0; color: #d7e6ff; line-height: 1.7; }
+    .brand { display: flex; align-items: center; gap: 13px; font-weight: 800; letter-spacing: .02em; }
+    .brand-logo { width: 54px; height: 54px; padding: 5px; box-shadow: none; }
+    .brand small { display: block; margin-top: 3px; color: #b8d0f6; font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+
+    .intro-footer { color: #b8d0f6; font-size: .8rem; }
+
+    .form-panel { padding: 34px clamp(28px, 6vw, 76px); }
+    .form-panel h2 { margin: 0 0 9px; color: var(--navy); font-size: 2rem; letter-spacing: -.035em; }
+    .form-subtitle { margin: 0 0 30px; color: var(--muted); }
+
+    .error-message { margin: 0 0 20px; padding: 12px 14px; border-left: 4px solid var(--danger); border-radius: 8px; color: var(--danger); background: #fff2f0; font-size: .9rem; }
+    .field { margin-bottom: 19px; }
+    label { display: block; margin-bottom: 8px; color: #344054; font-size: .88rem; font-weight: 750; }
+    .input-wrap { position: relative; }
+    input { width: 100%; padding: 14px 15px; border: 1px solid var(--line); border-radius: 11px; outline: none; color: var(--ink); background: #fbfcff; font: inherit; transition: border-color .2s, box-shadow .2s, background .2s; }
+    input:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 4px rgba(21,94,239,.12); }
+    .password-input { padding-right: 72px; }
+    .toggle-password { position: absolute; top: 50%; right: 9px; width: auto; margin: 0; padding: 6px 9px; transform: translateY(-50%); border: 0; color: var(--blue-dark); background: transparent; font-size: .78rem; font-weight: 800; }
+    .toggle-password:hover { transform: translateY(-50%); background: #eef4ff; }
+
+    .login-button { width: 100%; margin-top: 8px; padding: 15px; border: 0; border-radius: 11px; color: var(--white); background: linear-gradient(100deg, var(--blue-dark), var(--blue)); box-shadow: 0 10px 18px rgba(21,94,239,.22); cursor: pointer; font: inherit; font-weight: 800; transition: transform .2s, box-shadow .2s; }
+    .login-button:hover { transform: translateY(-2px); box-shadow: 0 14px 25px rgba(21,94,239,.3); }
+    .action-links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 17px; }
+    .signup-link,
+    .forgot-link {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 10px 13px;
+      border: 1px solid rgba(21,94,239,.18);
+      border-radius: 10px;
+      color: var(--blue-dark);
+      background: linear-gradient(135deg, #ffffff, #eef4ff);
+      box-shadow: 0 7px 15px rgba(15,65,150,.10);
+      text-align: center;
+      font-size: .82rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .22s ease, color .22s ease, box-shadow .22s ease;
+    }
+    .signup-link::before,
+    .forgot-link::before {
+      content: "";
+      position: absolute;
+      inset: -80% 35% -80% -35%;
+      z-index: -1;
+      background: linear-gradient(110deg, transparent 30%, rgba(246,196,83,.72) 48%, transparent 66%);
+      transform: translateX(-110%) rotate(14deg);
+      animation: buttonShimmer 3.8s ease-in-out infinite;
+    }
+    .forgot-link { color: #7a4d00; border-color: rgba(246,196,83,.42); background: linear-gradient(135deg, #fffdf5, #fff3c9); }
+    .signup-link:hover,
+    .forgot-link:hover { transform: translateY(-3px); color: var(--navy); box-shadow: 0 13px 22px rgba(15,65,150,.18); }
+    .signup-link:focus-visible,
+    .forgot-link:focus-visible { outline: 3px solid rgba(246,196,83,.65); outline-offset: 3px; }
+
+    @keyframes buttonShimmer { 0%, 58% { transform: translateX(-110%) rotate(14deg); } 82%, 100% { transform: translateX(230%) rotate(14deg); } }
+
+    .footer {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 5;
+      overflow: hidden;
+      color: #d9e7ff;
+      background: linear-gradient(180deg, rgba(3,14,36,.88), rgba(1,7,19,.98));
+      border-top: 1px solid rgba(246,196,83,.25);
+      box-shadow: 0 -10px 30px rgba(0,0,0,.18);
+    }
+
+    .marquee-container {
+      width: 100%;
+      overflow: hidden;
+      padding: 8px 0 7px;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .marquee {
+      display: inline-block;
+      min-width: 100%;
+      padding-left: 100%;
+      color: #f8d477;
+      font-size: .74rem;
+      font-weight: 750;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      animation: scroll-left 75s linear infinite;
+    }
+
+    .marquee::before,
+    .marquee::after {
+      content: "✦";
+      margin: 0 20px;
+      color: #fff3bd;
+    }
+
+    .fire {
+      position: relative;
+      height: 24px;
+      margin-top: 2px;
+      overflow: hidden;
+      background: linear-gradient(to top, rgba(255,74,0,.84), rgba(255,174,0,.42) 45%, transparent 100%);
+      filter: drop-shadow(0 -3px 7px rgba(255,130,0,.55));
+      animation: fireGlow 900ms ease-in-out infinite alternate;
+    }
+
+    .fire::before,
+    .fire::after {
+      content: "";
+      position: absolute;
+      bottom: -19px;
+      width: 180%;
+      height: 42px;
+      border-radius: 48% 52% 0 0;
+      transform: translateX(-8%);
+      background: radial-gradient(ellipse at 18% 100%, #fff4a8 0 7%, #ffbd19 8% 17%, transparent 18%), radial-gradient(ellipse at 43% 100%, #fff0a0 0 8%, #ff6a00 9% 20%, transparent 21%), radial-gradient(ellipse at 70% 100%, #ffe68a 0 7%, #ff7a00 8% 18%, transparent 19%), radial-gradient(ellipse at 92% 100%, #ffda58 0 7%, #f13b00 8% 20%, transparent 21%);
+      animation: flameWave 1200ms ease-in-out infinite alternate;
+    }
+
+    .fire::after { opacity: .55; transform: translateX(-22%) scaleY(.8); animation-duration: 820ms; animation-direction: alternate-reverse; }
+
+    @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+    @keyframes fireGlow { from { opacity: .72; } to { opacity: 1; } }
+    @keyframes flameWave { from { transform: translateX(-10%) skewX(-3deg) scaleY(.88); } to { transform: translateX(-2%) skewX(3deg) scaleY(1.1); } }
+
+    @keyframes welcomeEnter { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
+    @keyframes logoPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+    @keyframes welcomeExit { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+    @keyframes pageReveal { to { opacity: 1; } }
+
+    @media (max-width: 720px) {
+      .page-shell { padding: 10px 14px 67px; }
+      .login-card { grid-template-columns: 1fr; max-height: calc(100dvh - 78px); border-radius: 22px; }
+      .card-intro { min-height: 0; padding: 20px 26px; }
+      .card-intro h1 { margin: 14px 0 8px; font-size: 1.9rem; }
+      .card-intro p { line-height: 1.45; }
+      .intro-footer { display: none; }
+      .form-panel { padding: 22px 26px 24px; }
+      .form-subtitle { margin-bottom: 18px; }
+      .field { margin-bottom: 13px; }
+      .action-links { gap: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .welcome-screen { animation: welcomeExit 1ms linear 4.5s forwards; }
+      .welcome-content, .welcome-logo, .page-shell, .signup-link::before, .forgot-link::before { animation: none; }
+      .page-shell { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  {% set welcome_name = session.get('student_full_name') or student_full_name %}
+
+  <section class="welcome-screen" aria-label="Welcome message">
+    <div class="welcome-content">
+      <img class="welcome-logo" src="{{ url_for('static', filename='imgs/OIP.jpeg') }}" alt="Rockview University logo" onerror="this.style.display='none';" />
+      <p class="welcome-kicker">Rockview University</p>
+      <h1>{% if welcome_name %}Welcome, {{ welcome_name }}{% else %}Welcome{% endif %}</h1>
+      <p>Department Clearance Portal</p>
+    </div>
+  </section>
+
+  <main class="page-shell">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="card-intro">
+        <div>
+          <div class="brand">
+            <img class="brand-logo" src="{{ url_for('static', filename='imgs/OIP.jpeg') }}" alt="Rockview University logo" onerror="this.style.display='none';" />
+            <div>Rockview University<small>Student Services</small></div>
+          </div>
+          <h1>Your academic journey, all in one place.</h1>
+          <p>Sign in securely to manage your department clearance and stay connected with your university services.</p>
+        </div>
+        <div class="intro-footer">A trusted digital gateway for Rockview University students.</div>
+      </div>
+
+      <div class="form-panel">
+        <h2 id="login-title">Student Login</h2>
+        <p class="form-subtitle">Enter your credentials to continue.</p>
+
+        {% if error %}
+          <p class="error-message" role="alert">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+          <div class="field">
+            <label for="student_id">Student ID</label>
+            <input type="text" id="student_id" name="student_id" autocomplete="username" placeholder="Enter your student ID" required autofocus />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input class="password-input" type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+              <button class="toggle-password" type="button" id="togglePassword" aria-controls="password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <button class="login-button" type="submit">Sign in to portal</button>
+        </form>
+
+        <div class="action-links" aria-label="Account actions">
+          <a class="signup-link" href="{{ url_for('sign_up') }}">Create New Account</a>
+          <a class="forgot-link" href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <footer class="footer" aria-label="University announcement">
+    <div class="marquee-container">
+      <div class="marquee">Welcome to Rockview University Student Portal · Stay calm and enjoy our services</div>
+    </div>
+    <div class="fire" aria-hidden="true"></div>
+  </footer>
+
+  <script>
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+      const isPassword = password.type === 'password';
+      password.type = isPassword ? 'text' : 'password';
+      togglePassword.textContent = isPassword ? 'Hide' : 'Show';
+      togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+    <h2>Admin Dashboard Layout</h2>
+    <p>This is the admin-only page.</p>
+
+    <a href="{{ url_for('dashboard') }}">
+        <button>Back to Main Dashboard</button>
+    </a>
+     {% if role == "admin" %}
+    <a href="{{ url_for('admin_dashboard') }}">
+        <button class="btn btn-danger">Admin Dashboard</button>
+    </a>
+{% endif %}
+
+</body>
+</html>

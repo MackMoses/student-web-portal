@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Dashboard</title>
+
+    <style>
+        :root {
+            --navy: #061a34;
+            --blue: #1261a0;
+            --cyan: #24c7e8;
+            --green: #159957;
+            --red: #d64545;
+            --gold: #f4bd43;
+            --orange: #ef8d32;
+            --ink: #172033;
+            --muted: #66778c;
+            --line: #d8e3ee;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(4,22,48,.94), rgba(18,97,160,.82)),
+                url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover no-repeat fixed;
+        }
+
+        .dashboard-page {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            min-height: 0;
+            padding: 12px 16px 16px;
+        }
+
+        .header {
+            position: relative;
+            z-index: 20;
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: minmax(230px, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+            min-height: 82px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,.98);
+            border: 1px solid rgba(255,255,255,.72);
+            border-radius: 15px;
+            box-shadow: 0 12px 27px rgba(0,0,0,.28);
+        }
+
+        .header::before {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 4px;
+            content: "";
+            background: linear-gradient(90deg, var(--red), var(--gold), var(--green), var(--cyan), var(--blue));
+            background-size: 280% 100%;
+            border-radius: 15px 15px 0 0;
+            animation: colorFlow 7s linear infinite;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            color: var(--navy);
+            font-size: clamp(19px, 2.8vw, 29px);
+            line-height: 1.1;
+        }
+
+        .header-title p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-end;
+            width: min(100%, 360px);
+        }
+
+        .search-form input[type="text"] {
+            width: 230px;
+            min-height: 38px;
+            padding: 8px 12px;
+            color: var(--ink);
+            font-size: 12px;
+            background: #f8fbff;
+            border: 1px solid #bdcede;
+            border-right: 0;
+            border-radius: 8px 0 0 8px;
+            outline: none;
+        }
+
+        .search-form input[type="text"]:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(36,199,232,.15);
+        }
+
+        .search-form button {
+            min-width: 70px;
+            padding: 8px 13px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            background: var(--blue);
+            border: 0;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: filter .2s ease, transform .2s ease;
+        }
+
+        .search-form button:hover {
+            filter: brightness(1.12);
+            transform: translateY(-1px);
+        }
+
+        .controls-bar {
+            position: relative;
+            z-index: 19;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 55px;
+            padding: 9px 4px 8px;
+        }
+
+        .btn,
+        .btn-container a,
+        .btn-container button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 35px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1.1;
+            text-align: center;
+            text-decoration: none;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+        }
+
+        .btn:hover,
+        .btn-container a:hover,
+        .btn-container button:hover {
+            color: #fff;
+            filter: brightness(1.1);
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(0,0,0,.22);
+        }
+
+        .btn-logout { background: var(--red); }
+        .btn-notify { background: #168fa8; }
+        .btn-accounts-report { background: var(--blue); }
+        .btn-process-payment { background: var(--orange); }
+        .btn-edit { background: var(--green); }
+        .btn-delete { background: #6e7e91; }
+        .btn-view-receipts { background: #7655b9; }
+        .btn-system-layout { background: #237b4b; }
+        .btn-sign { background: var(--red); }
+
+        .admin-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .backup-btn,
+        .clear-btn {
+            min-height: 35px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .2s ease, filter .2s ease;
+        }
+
+        .backup-btn { background: var(--green); }
+        .clear-btn { background: var(--red); }
+
+        .backup-btn:hover,
+        .clear-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .table-panel {
+            flex: 1 1 auto;
+            min-width: 0;
+            min-height: 0;
+            padding: 10px;
+            background: rgba(255,255,255,.96);
+            border: 1px solid rgba(255,255,255,.62);
+            border-radius: 15px;
+            box-shadow: 0 12px 28px rgba(0,0,0,.25);
+        }
+
+        .table-scroll {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: #f7fbff;
+        }
+
+        #studentTable {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--white);
+        }
+
+        #studentTable th,
+        #studentTable td {
+            padding: 11px 12px;
+            text-align: left;
+            vertical-align: middle;
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+
+        #studentTable thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+        }
+
+        #studentTable tbody td {
+            color: #304257;
+            font-size: 12px;
+        }
+
+        #studentTable tbody tr:nth-child(even) {
+            background: #f5f9fd;
+        }
+
+        #studentTable tbody tr:hover {
+            background: #e8f7fb;
+        }
+
+        .status-text {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            padding: 5px 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 999px;
+        }
+
+        .status-signed {
+            color: #075c34;
+            background: #c9f1dc;
+            border: 1px solid #85d5a8;
+        }
+
+        .status-pending {
+            color: #704d00;
+            background: #fff0bf;
+            border: 1px solid #f0ce67;
+        }
+
+        .row-actions {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .row-actions .btn,
+        .row-actions button {
+            min-height: 29px;
+            padding: 6px 9px;
+            font-size: 10px;
+        }
+
+        .signed-mark {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .hide-if-dept {
+            display: none;
+        }
+
+        #studentDetails {
+            display: none;
+        }
+
+        @keyframes colorFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 280% 50%; }
+        }
+
+        @media (max-width: 850px) {
+            .dashboard-page {
+                padding: 9px;
+            }
+
+            .header {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .search-form {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .search-form input[type="text"] {
+                flex: 1 1 auto;
+                width: auto;
+            }
+
+            .controls-bar {
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .controls-bar > * {
+                flex: 0 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="dashboard-page">
+        <header class="header">
+            <div class="header-title">
+                <h1>Department Dashboard — {{ department_id.upper() }}</h1>
+                <p>Manage student clearance records and departmental signing activities.</p>
+            </div>
+
+            <form class="search-form" method="GET" action="{{ url_for('department_dashboard') }}">
+                <input
+                    type="text"
+                    name="search_query"
+                    placeholder="Search Student ID or Email"
+                    value="{{ request.args.get('search_query', '') }}"
+                >
+                <button type="submit">Search</button>
+            </form>
+        </header>
+
+        <nav class="controls-bar" aria-label="Department actions">
+            <a href="{{ url_for('department_logout') }}" class="btn btn-logout">Logout</a>
+            <a href="{{ url_for('accounts_notifications') }}" class="btn btn-notify" id="notifyBtn">Clearance Notifications</a>
+
+            {% if department_id != 'admission' and department_id != 'systems' and department_id != 'library' and department_id != 'adosa' and department_id != 'reception' %}
+                <a href="{{ url_for('accounts_report') }}" class="btn btn-accounts-report">Student Details</a>
+                <span class="admin-actions">
+                    <form action="{{ url_for('backup_accounts_notifications') }}" method="GET">
+                        <button type="submit" class="backup-btn">Backup Records</button>
+                    </form>
+                    <form action="{{ url_for('clear_accounts_notifications') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete all term records?');">
+                        <button type="submit" class="clear-btn">Clear Term Records</button>
+                    </form>
+                </span>
+            {% endif %}
+
+            {% if department_id == 'systems' %}
+                <a href="{{ url_for('studentdashboard') }}" class="btn btn-system-layout">Student Dashboard</a>
+                <span class="admin-actions">
+                    <form action="{{ url_for('backup_accounts_notifications') }}" method="GET">
+                        <button type="submit" class="backup-btn">Backup Records</button>
+                    </form>
+                    <form action="{{ url_for('clear_accounts_notifications') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete all term records?');">
+                        <button type="submit" class="clear-btn">Clear Term Records</button>
+                    </form>
+                </span>
+            {% endif %}
+
+            {% if department_id in ['library', 'systems', 'admission', 'adosa', 'reception', 'accounts'] %}
+                <a href="{{ url_for('view_all_receipts') }}" class="btn btn-view-receipts">Receipt Upload Notifications</a>
+            {% endif %}
+        </nav>
+
+        <section class="table-panel" aria-label="Student records">
+            <div class="table-scroll">
+                <table id="studentTable">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Program</th>
+                            <th>Intake</th>
+                            <th>Signature Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td>{{ student.id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.program }}</td>
+                                <td>{{ student.intake }}</td>
+                                <td>
+                                    {% if student['signed_' + department_id] %}
+                                        <span class="status-text status-signed">Signed</span>
+                                    {% else %}
+                                        <span class="status-text status-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        {% if not student['signed_' + department_id] %}
+                                            {% if department_id == "accounts" %}
+                                                <a href="{{ url_for('accountant_payment', student_id=student.id) }}" class="btn btn-process-payment">Process Payment</a>
+                                            {% else %}
+                                                <form method="POST" action="{{ url_for('sign_student', student_id=student.id, department=department_id) }}">
+                                                    <button type="submit" class="btn btn-sign">Sign</button>
+                                                </form>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="signed-mark">✓ Signed</span>
+                                        {% endif %}
+
+                                        <form method="GET" action="{{ url_for('edit_student', student_id=student.id) }}">
+                                            <button type="submit" class="btn btn-edit">Edit</button>
+                                        </form>
+
+                                        <form method="POST" action="{{ url_for('delete_student', student_id=student.id) }}">
+                                            <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this student?');">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="studentDetails"></div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const notifyButton = document.getElementById('notifyBtn');
+
+            if (notifyButton) {
+                notifyButton.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-2px) scale(1.03)';
+                });
+
+                notifyButton.addEventListener('mouseleave', function () {
+                    this.style.transform = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

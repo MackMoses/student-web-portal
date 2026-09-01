@@ -1,0 +1,86 @@
+/* Center the buttons container */
+.buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    gap: 20px; /* Space between buttons */
+    margin-top: 50px; /* Adjust as needed */
+    position: relative; /* For positioning logout button */
+}
+
+/* Style each department button box */
+.department-box {
+    border: 2px solid #4CAF50; /* Border color */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px;
+    width: 200px; /* Fixed width for uniformity */
+    text-align: center;
+    background-color: #f9f9f9; /* Light background */
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+
+/* Hover effect for department boxes */
+.department-box:hover {
+    background-color: #e0f7fa; /* Light blue on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Style the buttons inside the boxes */
+.department-box a {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background-color: #2196F3; /* Blue background */
+    color: #fff; /* White text */
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Hover effect for buttons */
+.department-box a:hover {
+    background-color: #0b7dda; /* Darker blue on hover */
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Logout button at top-right corner */
+.logout-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background-color: #f44336; /* Red color */
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    text-decoration: none;
+}
+
+/* Hover effect for logout button */
+.logout-btn:hover {
+    background-color: #da190b; /* Darker red */
+    transform: scale(1.05);
+}
+/* Style for the download button/link */
+.download-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 10px;
+    background-color: #4CAF50; /* Green background */
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+/* Hover effect for download button */
+.download-btn:hover {
+    background-color: #45a049; /* Darker green on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Environment secrets
+.env
+
+# Uploaded files
+uploads/
+receipts/
+uploaded_documents/
+
+# Generated signatures
+static/signatures/
+static/approval_marks/
+
+# Backups
+backups/
+
+# Python build files
+build/
+dist/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini

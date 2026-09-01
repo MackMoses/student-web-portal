@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Notifications</title>
+    <meta http-equiv="refresh" content="5"> <!-- Refresh every 5 seconds for testing -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">All Notifications</h2>
+
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3">
+        Back to Dashboard
+    </a>
+
+    {% if notifications %}
+        {% for n in notifications %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>
+                        Receipt: {{ n.file }}
+                    </h5>
+
+                    <p>
+                        Status:
+                        {% if n.status == "approved" %}
+                            <span class="text-success font-weight-bold">Approved</span>
+                        {% elif n.status == "rejected" %}
+                            <span class="text-danger font-weight-bold">Rejected</span>
+                        {% else %}
+                            <span class="text-info font-weight-bold">{{ n.status }}</span>
+                        {% endif %}
+                    </p>
+
+                    {% if n.comment %}
+                        <p>Comment: {{ n.comment }}</p>
+                    {% endif %}
+
+                    <small class="text-muted">
+                        {{ n.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                    </small>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            No notifications yet.
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

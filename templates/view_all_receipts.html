@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Student Receipts</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5}
+.dashboard{display:flex;flex-direction:column;width:100%;height:100vh;min-height:0;overflow:hidden}
+.fixed-header{position:relative;flex:0 0 auto;width:100%;background:#fff;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+#notificationArea{padding:5px 16px;background:#fff;border-bottom:1px solid #ddd}
+#notificationArea>div:first-child{display:flex;align-items:center;gap:12px}
+#notificationArea h3{font-size:16px}
+#notifCount{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:50%;background:#dc3545;color:#fff;font-weight:bold}
+#uploadedByInfo{margin-top:3px;color:#333;font-size:12px;font-weight:bold}
+button{border:0;border-radius:6px;cursor:pointer;color:#fff;background:#003366;font-weight:bold;padding:8px 13px}
+button:hover{filter:brightness(.9)}
+.page-title{padding:5px 16px;color:#003366;background:#fff;font-size:18px;font-weight:bold;line-height:1.2}
+.cards{display:flex;gap:8px;padding:5px 16px;background:#fff}
+.card{flex:1;min-width:0;padding:7px 8px;border-radius:6px;color:#fff;text-align:center}
+.card h3{margin-bottom:2px;font-size:12px}.card h2{font-size:19px}
+.filter-bar{display:flex;flex-wrap:wrap;gap:7px;padding:5px 16px;background:#fff}
+.storage-actions{display:flex;flex-wrap:wrap;gap:8px;padding:7px 16px;background:#fff;border-top:1px solid #e5e7eb}
+.storage-button{display:inline-block;padding:7px 10px;border-radius:5px;color:#fff;cursor:pointer;font-size:12px;font-weight:bold;text-decoration:none}
+.backup-button{background:#0d6efd}.trash-button{background:#6f42c1}.restore-all-button{background:#198754}.permanent-button,.clear-active-button{background:#b02a37!important}
+.search-area{padding:5px 16px 8px;background:#fff;border-bottom:2px solid #003366}
+.search-box{display:block;width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px}
+.table-section{position:relative;flex:1 1 0%;min-width:0;min-height:0;width:100%;margin:0;padding:10px 16px 24px;overflow-x:auto;overflow-y:auto;background:#f5f5f5}
+#receiptTable{width:100%;min-width:1100px;border-collapse:collapse;background:#fff}
+#receiptTable thead{position:sticky;top:0;z-index:20;background:#003366}
+#receiptTable th{padding:11px 9px;color:#fff;white-space:nowrap;text-align:center}
+#receiptTable td{padding:9px;border:1px solid #ddd;white-space:nowrap;text-align:center}
+#receiptTable tbody tr:nth-child(even){background:#f7f7f7}#receiptTable tbody tr:hover{background:#eef5ff}
+.action-btn{padding:7px 10px;margin:2px;border-radius:5px;font-size:12px}
+.badge{display:inline-block;padding:6px 10px;border-radius:6px;color:#fff;font-weight:bold}.Pending{background:#ff9800}.Approved{background:#28a745}.Rejected{background:#dc3545}
+.receipt-notification-dot{display:inline-block;width:11px;height:11px;margin-right:6px;border-radius:50%;vertical-align:middle;background:#1677e8;box-shadow:0 0 0 3px rgba(22,119,232,.14)}
+.receipt-notification-dot.approved{background:#28a745;box-shadow:0 0 0 3px rgba(40,167,69,.14)}
+.receipt-notification-dot.rejected{background:#dc3545;box-shadow:0 0 0 3px rgba(220,53,69,.14)}
+.receipt-preview{width:80px;height:80px;object-fit:cover;border:1px solid #ccc;border-radius:6px}
+.receipt-box{max-height:120px;overflow-y:auto}
+.accounts-attention-panel{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:8px;padding:8px 16px;background:linear-gradient(135deg,#fff8e1,#fff);border-bottom:1px solid #f0d28a}
+.attention-main,.attention-status,.attention-time,.attention-live{min-height:60px;padding:8px 11px;border:1px solid #eadfbf;border-radius:7px;background:#fff}.attention-main{background:#fff3cd;border-color:#ffc107}
+.attention-label{display:block;color:#6b4f00;font-size:11px;font-weight:bold;letter-spacing:.3px;text-transform:uppercase}.attention-value{display:block;margin-top:3px;color:#003366;font-size:18px;font-weight:bold}.attention-subvalue{display:block;margin-top:3px;color:#555;font-size:11px}
+.attention-status strong,.attention-time strong{display:block;margin-top:5px;color:#003366;font-size:13px}.attention-required{color:#dc3545!important}.attention-clear{color:#198754!important}
+.attention-live{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cctv-monitor-status{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:5px}.cctv-circle{display:flex;width:38px;height:38px;align-items:center;justify-content:center;border:3px solid #003366;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d9e8f5 45%,#6c8ba5);box-shadow:inset 0 0 0 3px #fff,0 0 0 2px #8aa8bf,0 3px 8px rgba(0,0,0,.25)}
+.cctv-inner-circle{display:flex;width:24px;height:24px;align-items:center;justify-content:center;border:2px solid #003366;border-radius:50%;background:radial-gradient(circle at 35% 30%,#173f5f,#071c2c 65%,#000);box-shadow:inset 0 0 7px #000}.cctv-blinking-dot{display:block;width:8px;height:8px;border-radius:50%;background:#dc3545;box-shadow:0 0 7px #dc3545;animation:cctvBlink 2.8s linear infinite}.cctv-live-text{color:#003366;font-size:12px;white-space:nowrap}
+@keyframes cctvBlink{0%{background:#dc3545;box-shadow:0 0 6px #dc3545;opacity:1}14%{background:#fd7e14;box-shadow:0 0 9px #fd7e14;opacity:.4}28%{background:#ffc107;box-shadow:0 0 9px #ffc107;opacity:1}42%{background:#198754;box-shadow:0 0 9px #198754;opacity:.4}57%{background:#0d6efd;box-shadow:0 0 9px #0d6efd;opacity:1}71%{background:#6610f2;box-shadow:0 0 9px #6610f2;opacity:.4}85%{background:#d63384;box-shadow:0 0 9px #d63384;opacity:1}100%{background:#dc3545;box-shadow:0 0 6px #dc3545;opacity:.4}}
+.trash-sidebar{position:fixed;top:0;right:-470px;display:flex;flex-direction:column;width:min(470px,94vw);height:100vh;background:#fff;z-index:12000;box-shadow:-8px 0 25px rgba(0,0,0,.25);transition:right .25s ease}.trash-sidebar.open{right:0}.trash-header{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#003366;color:#fff}.trash-close{padding:3px 9px;background:transparent;font-size:24px}.trash-toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-bottom:1px solid #ddd}.trash-list{flex:1;padding:10px;overflow-y:auto}.trash-item{margin-bottom:9px;padding:11px;border:1px solid #ddd;border-radius:7px;background:#fafafa}.trash-item strong{display:block;color:#003366}.trash-meta{margin-top:4px;color:#64748b;font-size:12px}.trash-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.trash-actions button{padding:6px 8px;font-size:11px}.trash-empty{padding:25px 10px;color:#64748b;text-align:center}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:13000}.modal-box{width:min(420px,92vw);margin:8% auto;padding:20px;border-radius:8px;background:#fff}.modal-box textarea{width:100%;height:120px;margin:10px 0;padding:10px;border:1px solid #ccc;border-radius:6px}
+#notifBox{position:fixed;top:58px;right:20px;width:min(420px,92vw);max-height:450px;overflow-y:auto;padding:10px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,.2);display:none;z-index:12500}
+@media(max-width:900px){.cards{flex-direction:column}.accounts-attention-panel{grid-template-columns:1fr 1fr}.filter-bar{flex-direction:column}}
+@media(max-width:560px){.accounts-attention-panel{grid-template-columns:1fr}.cctv-live-text{font-size:11px}}
+</style>
+</head>
+<body data-department="{{ session.get('department_id','') }}">
+<div class="dashboard">
+    <div class="fixed-header">
+        <div id="notificationArea">
+            <div>
+                <h3>🔔 Notifications</h3>
+                <span id="notifCount">0</span>
+                <button type="button" onclick="markAsRead()">Mark All Read</button>
+            </div>
+            <div id="uploadedByInfo">No latest receipt uploaded.</div>
+        </div>
+
+        <div class="accounts-attention-panel" id="accountsAttentionPanel">
+            <div class="attention-main"><span class="attention-label">Accounts Attention</span><span class="attention-value">Unread requests: <span id="attentionUnreadCount">0</span></span><span class="attention-subvalue" id="attentionRequestMessage">No pending clearance requests.</span></div>
+            <div class="attention-status"><span class="attention-label">Request status</span><strong id="attentionRequestStatus" class="attention-clear">No attention required</strong></div>
+            <div class="attention-time"><span class="attention-label">Last checked</span><strong id="attentionLastChecked">--:--:-- Zambia time</strong></div>
+            <div class="attention-live"><span class="attention-label">Monitoring status</span><div class="cctv-monitor-status"><div class="cctv-circle"><div class="cctv-inner-circle"><span class="cctv-blinking-dot"></span></div></div><strong class="cctv-live-text">Live monitoring active</strong></div></div>
+        </div>
+
+        <div class="page-title">All Student Receipts (Accounts Dashboard)</div>
+        <div class="cards"><div class="card" style="background:#003366"><h3>Total Receipts</h3><h2>{{ total_receipts or 0 }}</h2></div><div class="card" style="background:#ff9800"><h3>Pending</h3><h2>{{ pending or 0 }}</h2></div><div class="card" style="background:#28a745"><h3>Approved</h3><h2>{{ approved or 0 }}</h2></div><div class="card" style="background:#dc3545"><h3>Rejected</h3><h2>{{ rejected or 0 }}</h2></div></div>
+        <div class="filter-bar"><a href="/view_all_receipts"><button type="button" style="background:#003366">All</button></a><a href="/view_all_receipts?status=Pending"><button type="button" style="background:#ff9800">Pending</button></a><a href="/view_all_receipts?status=Approved"><button type="button" style="background:#28a745">Approved</button></a><a href="/view_all_receipts?status=Rejected"><button type="button" style="background:#dc3545">Rejected</button></a></div>
+        <div class="storage-actions"><a class="storage-button backup-button" href="/accounts/receipts/backup.xlsx">⬇ Backup All to Excel</a><button class="storage-button trash-button" type="button" onclick="toggleTrashSidebar()">🗑 Trash ({{ trash_count or 0 }})</button><button class="storage-button clear-active-button" type="button" onclick="backupThenClearActiveReceipts()">Backup and Clear Active Table</button></div>
+        <div class="search-area"><input type="text" id="searchInput" class="search-box" placeholder="Search by Student ID, Student Name, Programme..." onkeyup="searchTable()"></div>
+    </div>
+
+    <div class="table-section">
+        <table id="receiptTable">
+            <thead><tr><th>Student ID</th><th>Name</th><th>Date Uploaded</th><th>Intake</th><th>Program</th><th>Status</th><th>Receipt</th><th>Download</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for receipt in receipts %}
+                <tr data-receipt-id="{{ receipt.receipt_obj.id }}">
+                    <td><span class="receipt-notification-dot {{ receipt.receipt_obj.status|lower }}" title="{{ receipt.receipt_obj.status }}"></span>{{ receipt.student_id }}</td>
+                    <td>{{ receipt.name }}</td><td>{{ receipt.date_uploaded }}</td><td>{{ receipt.intake }}</td><td>{{ receipt.program }}</td>
+                    <td><span class="badge {{ receipt.receipt_obj.status }}">{{ receipt.receipt_obj.status }}</span></td>
+                    <td class="receipt-box">{% if receipt.receipt_obj.filename %}{% set filename=receipt.receipt_obj.filename %}{% if filename.lower().endswith(('.jpg','.jpeg','.png')) %}<a href="{{ url_for('view_receipt',filename=filename) }}" target="_blank"><img src="{{ url_for('view_receipt',filename=filename) }}" class="receipt-preview" alt="Receipt"></a>{% elif filename.lower().endswith('.pdf') %}<a href="{{ url_for('view_receipt',filename=filename) }}" target="_blank">Open PDF</a>{% else %}<a href="{{ url_for('view_receipt',filename=filename) }}" target="_blank">Open File</a>{% endif %}{% else %}No Receipt{% endif %}</td>
+                    <td>{% if receipt.receipt_obj.filename %}<a href="{{ url_for('download_receipt',filename=receipt.receipt_obj.filename) }}"><button class="action-btn" type="button" style="background:#28a745">Download</button></a>{% else %}N/A{% endif %}</td>
+                    <td><button class="action-btn" type="button" onclick="approveReceipt('{{ receipt.receipt_obj.id }}')" style="background:#28a745">Approve</button><button class="action-btn" type="button" onclick="openReject('{{ receipt.receipt_obj.id }}')" style="background:#dc3545">Reject</button><button class="action-btn" type="button" onclick="viewHistory('{{ receipt.receipt_obj.id }}')" style="background:#0d6efd">History</button><button class="action-btn" type="button" onclick="deleteReceipt('{{ receipt.receipt_obj.id }}')" style="background:#6c757d">Delete</button></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="rejectModal" class="modal-overlay"><div class="modal-box"><h3>Reject Reason</h3><textarea id="rejectReason"></textarea><button type="button" onclick="submitReject()" style="background:#dc3545">Submit</button><button type="button" onclick="closeModal()" style="background:#6c757d">Close</button></div></div>
+<div id="historyModal" class="modal-overlay"><div class="modal-box" id="historyContent"></div></div>
+<aside id="trashSidebar" class="trash-sidebar"><div class="trash-header"><h2>🗑 Receipt Trash</h2><button class="trash-close" type="button" onclick="toggleTrashSidebar()">&times;</button></div><div class="trash-toolbar"><button class="restore-all-button" type="button" onclick="restoreAllReceipts()">Restore All</button><a class="storage-button backup-button" href="/accounts/receipts/backup.xlsx">Backup Excel</a></div><div class="trash-list">{% if trash_receipts %}{% for item in trash_receipts %}<div class="trash-item" data-trash-id="{{ item.receipt_obj.id }}"><strong>{{ item.name }}</strong><span>Student ID: {{ item.student_id }}</span><span>Status: {{ item.receipt_obj.status }}</span><span>Receipt: {{ item.receipt_obj.filename or 'No file' }}</span><div class="trash-meta">Deleted: {{ item.deleted_at or 'Date unavailable' }}  
+Deleted by: {{ item.deleted_by or 'Accounts' }}</div><div class="trash-actions"><button class="restore-all-button" type="button" onclick="restoreReceipt('{{ item.receipt_obj.id }}')">Restore</button><button class="permanent-button" type="button" onclick="permanentlyDeleteReceipt('{{ item.receipt_obj.id }}')">Delete Permanently</button>{% if item.receipt_obj.filename %}<a class="storage-button backup-button" href="{{ url_for('view_receipt',filename=item.receipt_obj.filename) }}" target="_blank">View Receipt</a>{% endif %}</div></div>{% endfor %}{% else %}<div class="trash-empty">Trash is empty.</div>{% endif %}</div></aside>
+<div id="notifBox"></div>
+
+<script>
+let selectedReceiptId=null;
+let lastNotificationCount=0;
+let notificationCountInitialized=false;
+const DENIED="You are not allowed to perform this action only accounts and System can do so";
+function canManage(){return ["accounts","system","systems"].includes(String(document.body.dataset.department||"").trim().toLowerCase())}
+function getZambiaTime(){return new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Lusaka",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date())}
+function updateAccountsAttentionPanel(count){const n=Math.max(0,Number(count||0));const c=document.getElementById("attentionUnreadCount"),s=document.getElementById("attentionRequestStatus"),m=document.getElementById("attentionRequestMessage"),t=document.getElementById("attentionLastChecked");if(c)c.textContent=n;if(t)t.textContent=getZambiaTime()+" Zambia time";if(n>0){if(s){s.textContent="Attention required";s.className="attention-required"}if(m)m.textContent="New receipt request(s) require Accounts review."}else{if(s){s.textContent="No attention required";s.className="attention-clear"}if(m)m.textContent="All receipt notifications have been attended to."}}
+const notificationSound=new Audio("/static/alert.mp3");notificationSound.preload="auto";
+function playUploadAlarm(){notificationSound.currentTime=0;notificationSound.play().catch(e=>console.log("Sound unavailable:",e))}
+function loadNotifications(){fetch("/receipt/notifications",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("Notification request failed: "+r.status);return r.json()}).then(data=>{const n=Math.max(0,Number(data.new_count||0));const b=document.getElementById("notifCount");if(b)b.textContent=n;updateAccountsAttentionPanel(n);const i=document.getElementById("uploadedByInfo");if(i&&data.latest_info!==undefined)i.innerHTML=data.latest_info;const p=document.getElementById("notifBox");if(p&&Array.isArray(data.messages))p.innerHTML=data.messages.length?data.messages.map(x=>`<div style="padding:10px;border-bottom:1px solid #ddd;font-weight:bold;color:#003366">${x}</div>`).join(""):"<center>No Notifications</center>";if(notificationCountInitialized&&n>lastNotificationCount)playUploadAlarm();lastNotificationCount=n;notificationCountInitialized=true;applyApprovedDots()}).catch(e=>console.error(e))}
+function applyApprovedDots(){document.querySelectorAll("#receiptTable tbody tr").forEach(r=>{const d=r.querySelector(".receipt-notification-dot"),b=r.querySelector(".badge");if(!d||!b)return;d.classList.remove("approved","rejected");const s=b.textContent.trim().toLowerCase();if(s==="approved")d.classList.add("approved");else if(s==="rejected")d.classList.add("rejected")})}
+function readJson(r){return r.json().catch(()=>({})).then(d=>{if(r.status===403)throw Error(d.message||DENIED);if(!r.ok||d.success===false)throw Error(d.message||"The server rejected the request.");return d})}
+function markAsRead(){fetch("/receipt/notifications/mark_read",{method:"POST"}).then(readJson).then(()=>{lastNotificationCount=0;const b=document.getElementById("notifCount");if(b)b.textContent="0";updateAccountsAttentionPanel(0);const p=document.getElementById("notifBox");if(p)p.innerHTML="<center>No Notifications</center>"}).catch(e=>alert(e.message))}
+function toggleNotifications(){const p=document.getElementById("notifBox");if(p)p.style.display=p.style.display==="block"?"none":"block"}
+function toggleTrashSidebar(){const s=document.getElementById("trashSidebar");if(s)s.classList.toggle("open")}
+function searchTable(){const q=(document.getElementById("searchInput").value||"").toLowerCase();document.querySelectorAll("#receiptTable tbody tr").forEach(r=>r.style.display=r.innerText.toLowerCase().includes(q)?"":"none")}
+function approveReceipt(id){if(!canManage()){alert(DENIED);return}if(!confirm("Approve this receipt?"))return;fetch(`/receipt/${encodeURIComponent(id)}/approve`,{method:"POST",headers:{Accept:"application/json"}}).then(readJson).then(()=>{loadNotifications();location.reload()}).catch(e=>alert(e.message||"Approval failed."))}
+function openReject(id){if(!canManage()){alert(DENIED);return}selectedReceiptId=id;document.getElementById("rejectReason").value="";document.getElementById("rejectModal").style.display="block"}
+function submitReject(){if(!canManage()){alert(DENIED);closeModal();return}const reason=document.getElementById("rejectReason").value.trim();if(!reason){alert("Please enter rejection reason.");return}fetch(`/receipt/${encodeURIComponent(selectedReceiptId)}/reject`,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({reason})}).then(readJson).then(()=>{closeModal();loadNotifications();location.reload()}).catch(e=>alert(e.message||"Rejection failed."))}
+function deleteReceipt(id){if(!canManage()){alert(DENIED);return}if(!confirm("Move this receipt to Trash? It can be restored later."))return;fetch(`/accounts/receipt/${encodeURIComponent(id)}/trash`,{method:"POST",headers:{Accept:"application/json"}}).then(readJson).then(()=>location.reload()).catch(e=>alert(e.message||"The receipt could not be moved to Trash."))}
+function viewHistory(id){fetch(`/receipt/${encodeURIComponent(id)}/history`).then(readJson).then(d=>{document.getElementById("historyContent").innerHTML=`<h2 style="color:#003366">Receipt History</h2><p><b>Student:</b> ${d.student_name||""}</p><p><b>Student ID:</b> ${d.student_id||""}</p><p><b>Status:</b> ${d.status||""}</p><p><b>Comment:</b> ${d.comment||""}</p><p><b>Uploaded:</b> ${d.uploaded||""}</p><button type="button" onclick="closeModal()">Close</button>`;document.getElementById("historyModal").style.display="block"}).catch(e=>alert(e.message||"History could not be loaded."))}
+function closeModal(){document.getElementById("rejectModal").style.display="none";document.getElementById("historyModal").style.display="none"}
+function restoreReceipt(id){if(!confirm("Restore ONLY this selected receipt to the active table?"))return;fetch(`/receipt/${encodeURIComponent(id)}/restore`,{method:"POST",headers:{Accept:"application/json"}}).then(readJson).then(()=>location.reload()).catch(e=>alert(e.message||"Restore failed."))}
+function restoreAllReceipts(){if(!confirm("Restore ALL receipts currently in Trash?"))return;fetch("/receipts/trash/restore-all",{method:"POST",headers:{Accept:"application/json"}}).then(readJson).then(d=>{alert(`${d.restored_count||0} receipt(s) restored.`);location.reload()}).catch(e=>alert(e.message||"Restore All failed."))}
+function permanentlyDeleteReceipt(id){if(!confirm("Permanently delete ONLY this selected receipt? This cannot be undone."))return;fetch(`/receipt/${encodeURIComponent(id)}/permanent-delete`,{method:"POST",headers:{Accept:"application/json"}}).then(readJson).then(()=>location.reload()).catch(e=>alert(e.message||"Permanent delete failed."))}
+function backupThenClearActiveReceipts() {
+
+    if (!canManage()) {
+
+        alert(DENIED);
+
+        return;
+
+    }
+
+
+    const confirmation = confirm(
+
+        "IMPORTANT BACKUP CONFIRMATION\n\n" +
+
+        "The current active receipts will FIRST be downloaded " +
+
+        "as an Excel backup.\n\n" +
+
+        "After confirming that the Excel file has downloaded, " +
+
+        "you will be asked whether to clear the active table.\n\n" +
+
+        "Continue?"
+
+    );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+    // ======================================================
+    // DOWNLOAD EXCEL BACKUP FIRST
+    // ======================================================
+
+    window.location.href =
+        "/accounts/receipts/backup.xlsx";
+
+
+    // ======================================================
+    // WAIT FOR USER CONFIRMATION
+    // ======================================================
+
+    setTimeout(() => {
+
+        const backupConfirmed = confirm(
+
+            "HAS THE EXCEL BACKUP DOWNLOADED SUCCESSFULLY?\n\n" +
+
+            "Click OK ONLY if you have successfully downloaded " +
+
+            "the Excel backup.\n\n" +
+
+            "Click CANCEL to keep all active receipts unchanged."
+
+        );
+
+
+        // --------------------------------------------------
+        // DO NOT CLEAR IF USER CANCELS
+        // --------------------------------------------------
+
+        if (!backupConfirmed) {
+
+            alert(
+
+                "The active receipts were NOT cleared. " +
+
+                "Your data remains safe in the active table."
+
+            );
+
+            return;
+
+        }
+
+
+        // ==================================================
+        // CLEAR ACTIVE RECEIPTS
+        // ==================================================
+
+        fetch(
+
+            "/accounts/receipts/clear-active",
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    Accept: "application/json"
+
+                }
+
+            }
+
+        )
+
+        .then(readJson)
+
+        .then(data => {
+
+
+            alert(
+
+                "SUCCESS!\n\n" +
+
+                (data.cleared_count || 0) +
+
+                " active receipt(s) have been cleared.\n\n" +
+
+                "Your Excel backup was downloaded first, and " +
+
+                "the cleared receipts were moved to Trash."
+
+            );
+
+
+            location.reload();
+
+        })
+
+        .catch(error => {
+
+
+            alert(
+
+                error.message ||
+
+                "The active receipts could not be cleared."
+
+            );
+
+        });
+
+
+    }, 2000);
+
+}
+document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("notifCount");if(b)b.addEventListener("click",toggleNotifications);loadNotifications();setInterval(loadNotifications,5000);applyApprovedDots()});
+var socket=io();socket.emit("join",{room:"accounts"});socket.on("new_receipt",data=>{playUploadAlarm();alert("NEW RECEIPT UPLOADED\n\nName: "+(data.student_name||"")+"\nID: "+(data.student_id||""));loadNotifications();if(location.pathname==="/view_all_receipts")setTimeout(()=>location.reload(),300)});
+</script>
+</body>
+</html>

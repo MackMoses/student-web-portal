@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>All Student Receipts (Accounts Dashboard)</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    height:100%;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f5f5f5;
+}
+
+/* ===========================
+   MAIN LAYOUT
+=========================== */
+.dashboard{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+
+/* ===========================
+   FIXED HEADER
+=========================== */
+.fixed-header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#fff;
+    z-index:9999;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+/* ===========================
+   NOTIFICATION
+=========================== */
+#notificationArea{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 20px;
+    background:#ffffff;
+    border-bottom:1px solid #ddd;
+}
+#uploadedByInfo{
+    font-size:14px;
+    font-weight:bold;
+    color:#333;
+}
+#notifCount{
+    background:red;
+    color:white;
+    border-radius:50%;
+    width:28px;
+    height:28px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+/* ===========================
+TITLE
+=========================== */
+.page-title{
+    padding:8px 20px;
+    font-size:22px;
+    font-weight:bold;
+    color:#003366;
+    background:white;
+}
+/* ===========================
+SUMMARY CARDS
+=========================== */
+.cards{
+    display:flex;
+    gap:10px;
+    padding:10px 20px;
+    background:white;
+}
+.card{
+    flex:1;
+    padding:12px;
+    border-radius:8px;
+    color:white;
+    text-align:center;
+}
+.card h3{
+    font-size:15px;
+    margin-bottom:5px;
+}
+.card h2{
+    font-size:24px;
+}
+/* ===========================
+FILTER BUTTONS
+=========================== */
+.filter-bar{
+    display:flex;
+    gap:10px;
+    padding:10px 20px;
+    background:white;
+}
+/* ===========================
+BUTTONS
+=========================== */
+button{
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    padding:10px 18px;
+    transition:.25s;
+}
+button:hover{
+    transform:translateY(-2px);
+}
+.action-btn{
+    padding:8px 12px;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.25s;
+}
+.action-btn:hover{
+    transform:scale(1.08);
+}
+button[onclick^="approveReceipt"]{
+    background:#28a745;
+}
+button[onclick^="approveReceipt"]:hover{
+    background:#1e7e34;
+}
+button[onclick^="openReject"]{
+    background:#dc3545;
+}
+button[onclick^="openReject"]:hover{
+    background:#b52b38;
+}
+button[onclick^="viewHistory"]{
+    background:#0d6efd;
+}
+button[onclick^="viewHistory"]:hover{
+    background:#084db5;
+}
+button[onclick^="deleteReceipt"]{
+    background:#6c757d;
+}
+button[onclick^="deleteReceipt"]:hover{
+    background:#495057;
+}
+/* ===========================
+SEARCH
+=========================== */
+.search-area{
+    background:white;
+    padding:10px 20px;
+    border-bottom:2px solid #003366;
+}
+.search-box{
+    width:100%;
+    padding:12px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    font-size:15px;
+}
+/* ===========================
+TABLE SECTION
+=========================== */
+.table-section{
+    position:absolute;
+    top:280px;
+    left:0;
+    right:0;
+    bottom:0;
+    overflow-y:auto;
+    overflow-x:auto;
+    padding:15px 20px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+thead{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#003366;
+}
+thead th{
+    color:white;
+    padding:12px;
+}
+tbody td{
+    padding:10px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+tbody tr:nth-child(even){
+    background:#f7f7f7;
+}
+tbody tr:hover{
+    background:#eef5ff;
+}
+/* ===========================
+STATUS BADGES
+=========================== */
+.badge{
+    padding:7px 12px;
+    border-radius:6px;
+    color:white;
+    font-weight:bold;
+}
+.Pending{
+    background:#ff9800;
+}
+.Approved{
+    background:#28a745;
+}
+.Rejected{
+    background:#dc3545;
+}
+/* ===========================
+RECEIPT PREVIEW
+=========================== */
+.receipt-preview{
+    width:80px;
+    height:80px;
+    object-fit:cover;
+    border-radius:6px;
+    border:1px solid #ccc;
+    transition:.25s;
+}
+.receipt-preview:hover{
+    transform:scale(1.08);
+}
+.receipt-box{
+    max-height:120px;
+    overflow-y:auto;
+}
+/* ===========================
+MODALS
+=========================== */
+.modal-overlay{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.45);
+    z-index:10000;
+}
+.modal-box{
+    width:420px;
+    margin:8% auto;
+    background:white;
+    border-radius:8px;
+    padding:20px;
+}
+/* ===========================
+RESPONSIVE
+=========================== */
+@media(max-width:900px){
+    .cards{
+        flex-direction:column;
+    }
+    .filter-bar{
+        flex-direction:column;
+    }
+    .table-section{
+        top:520px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- ===========================
+         FIXED HEADER
+    ============================ -->
+    <div class="fixed-header">
+
+        <!-- Notification Area -->
+        <div id="notificationArea">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+                <h3 style="margin:0;">🔔 Notifications</h3>
+                <span id="notifCount">0</span>
+                <button onclick="markAsRead()">Mark All Read</button>
+            </div>
+
+            <div id="uploadedByInfo">
+                No latest receipt uploaded.
+            </div>
+
+        </div>
+
+        <!-- Dashboard Title -->
+        <div class="page-title">
+            All Students(Receition Dashboard)
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="cards">
+            <div class="card" style="background:#003366;">
+                <h3>Total Receipts</h3>
+                <h2>{{ total_receipts or 0 }}</h2>
+            </div>
+            <div class="card" style="background:#ff9800;">
+                <h3>Pending</h3>
+                <h2>{{ pending or 0 }}</h2>
+            </div>
+            <div class="card" style="background:#28a745;">
+                <h3>Approved</h3>
+                <h2>{{ approved or 0 }}</h2>
+            </div>
+            <div class="card" style="background:#dc3545;">
+                <h3>Rejected</h3>
+                <h2>{{ rejected or 0 }}</h2>
+            </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-bar">
+            <a href="/view_all_receipts">
+                <button style="background:#003366;">All</button>
+            </a>
+            <a href="/view_all_receipts?status=Pending">
+                <button style="background:#ff9800;">Pending</button>
+            </a>
+            <a href="/view_all_receipts?status=Approved">
+                <button style="background:#28a745;">Approved</button>
+            </a>
+            <a href="/view_all_receipts?status=Rejected">
+                <button style="background:#dc3545;">Rejected</button>
+            </a>
+        </div>
+
+        <!-- Search -->
+        <div class="search-area">
+            <input
+                type="text"
+                id="searchInput"
+                class="search-box"
+                placeholder="Search by Student ID, Student Name, Programme..."
+                onkeyup="searchTable()"
+            />
+        </div>
+    </div>
+
+    <!-- ===========================
+         SCROLLABLE TABLE
+    ============================ -->
+    <div class="table-section">
+        <table id="receiptTable">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Date Uploaded</th>
+                    <th>Intake</th>
+                    <th>Program</th>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                    <th>Download</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for receipt in receipts %}
+                <tr>
+                    <td>{{ receipt.student_id }}</td>
+                    <td>{{ receipt.name }}</td>
+                    <td>{{ receipt.date_uploaded }}</td>
+                    <td>{{ receipt.intake }}</td>
+                    <td>{{ receipt.program }}</td>
+                    <!-- STATUS -->
+                    <td>
+                        <span class="badge {{ receipt.receipt_obj.status }}">
+                            {{ receipt.receipt_obj.status }}
+                        </span>
+                    </td>
+                    <!-- RECEIPT -->
+                    <td class="receipt-box">
+                        {% if receipt.receipt_obj.filename %}
+                            {% set filename = receipt.receipt_obj.filename %}
+                            {% if filename.lower().endswith(('.jpg','.jpeg','.png')) %}
+                                <a href="{{ url_for('view_receipt', filename=filename) }}" target="_blank">
+                                    <img src="{{ url_for('view_receipt', filename=filename) }}" class="receipt-preview" />
+                                </a>
+                            {% elif filename.lower().endswith('.pdf') %}
+                                <a href="{{ url_for('view_receipt', filename=filename) }}">Open PDF</a>
+                            {% else %}
+                                <a href="{{ url_for('view_receipt', filename=filename) }}">Open File</a>
+                            {% endif %}
+                        {% else %}
+                            No Receipt
+                        {% endif %}
+                    </td>
+                    <!-- DOWNLOAD -->
+                    <td>
+                        {% if receipt.receipt_obj.filename %}
+                            <a href="{{ url_for('download_receipt', filename=receipt.receipt_obj.filename) }}">
+                            <!--     <button class="action-btn" style="background:#28a745;">Download</button>-->
+                            </a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <!-- ACTIONS -->
+                    <td>
+                        <button class="action-btn" onclick="approveReceipt('{{ receipt.receipt_obj.id }}')">Approve</button>
+                        <button class="action-btn" onclick="openReject('{{ receipt.receipt_obj.id }}')">Reject</button>
+                      <!--  <button class="action-btn" onclick="viewHistory('{{ receipt.receipt_obj.id }}')">History</button>-->
+                        <button class="action-btn" style="background:#dc3545;" onclick="deleteReceipt('{{ receipt.receipt_obj.id }}')">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- ===========================
+     REJECT MODAL
+=========================== -->
+<div id="rejectModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Reject Reason</h3>
+        <textarea id="rejectReason" style="width:100%;height:120px;border:1px solid #ccc;border-radius:6px;padding:10px;"></textarea>
+        <br /><br />
+        <button onclick="submitReject()">Submit</button>
+        <button style="background:#6c757d;" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<!-- ===========================
+     HISTORY MODAL
+=========================== -->
+<div id="historyModal" class="modal-overlay">
+    <div class="modal-box" id="historyContent"></div>
+</div>
+
+<!-- ===========================
+     NOTIFICATIONS PANEL (DYNAMIC)
+=========================== -->
+<div id="notifBox" style="
+    position:fixed;
+    top:58px;
+    right:20px;
+    width:420px;
+    max-height:450px;
+    overflow-y:auto;
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:8px;
+    box-shadow:0 3px 12px rgba(0,0,0,.2);
+    display:none;
+    padding:10px;
+    z-index:10000;
+"></div>
+
+<!-- ===========================
+     SCRIPTS
+=========================== -->
+<script>
+let selectedReceiptId = null;
+let lastCount = 0;
+
+/* Notification sound setup */
+const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
+
+/* Load notifications on window load */
+window.addEventListener("load", function() {
+    if (!document.getElementById("notifBox")) {
+        let box = document.createElement("div");
+        box.id = "notifBox";
+        box.style.position = "fixed";
+        box.style.top = "58px";
+        box.style.right = "20px";
+        box.style.width = "420px";
+        box.style.maxHeight = "450px";
+        box.style.overflowY = "auto";
+        box.style.background = "#ffffff";
+        box.style.border = "1px solid #ddd";
+        box.style.borderRadius = "8px";
+        box.style.boxShadow = "0 3px 12px rgba(0,0,0,.2)";
+        box.style.display = "none";
+        box.style.padding = "10px";
+        box.style.zIndex = "10000";
+        document.body.appendChild(box);
+    }
+});
+
+/* Toggle notifications panel visibility */
+function toggleNotifications() {
+    let box = document.getElementById("notifBox");
+    if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";
+        markNotificationsRead();
+    } else {
+        box.style.display = "none";
+    }
+}
+
+/* Notification badge click */
+document.addEventListener("DOMContentLoaded", function() {
+    let badge = document.getElementById("notifCount");
+    if (badge) {
+        badge.onclick = toggleNotifications;
+    }
+});
+
+/* Load notifications periodically */
+setInterval(loadNotifications, 5000);
+window.onload = function() {
+    loadNotifications();
+};
+
+/* Fetch notifications from server */
+function loadNotifications() {
+    fetch("/receipt/notifications")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("notifCount").innerText = data.new_count;
+            document.getElementById("uploadedByInfo").innerHTML = data.latest_info;
+            let html = "";
+            if (data.messages.length === 0) {
+                html = "<center>No Notifications</center>";
+            }
+            data.messages.forEach(function(item) {
+                html += `
+                <div style="padding:10px;border-bottom:1px solid #ddd;">
+                    <div style="font-weight:bold;color:#003366;">
+                        ${item}
+                    </div>
+                </div>`;
+            });
+            document.getElementById("notifBox").innerHTML = html;
+            if (data.new_count > lastCount) {
+                notificationSound.play();
+            }
+            lastCount = data.new_count;
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
+
+/* Mark all notifications as read */
+function markAsRead() {
+    fetch("/receipt/notifications/mark_read", { method: "POST" })
+        .then(() => {
+            document.getElementById("notifCount").innerText = 0;
+            document.getElementById("notifBox").innerHTML = "<center>No Notifications</center>";
+            lastCount = 0;
+        });
+}
+
+/* Search table function */
+function searchTable() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let rows = document.querySelectorAll("#receiptTable tbody tr");
+    rows.forEach(function(row) {
+        if (row.innerText.toLowerCase().indexOf(input) > -1) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+/* Approve receipt */
+function approveReceipt(id) {
+    if (!confirm("Approve this receipt?")) return;
+    fetch(`/receipt/${id}/approve`, { method: "POST" })
+        .then(res => res.json())
+        .then(function() {
+            loadNotifications();
+            location.reload();
+        })
+        .catch(function(error) {
+            console.log(error);
+            alert("Approval failed.");
+        });
+}
+
+/* Open reject modal */
+function openReject(id) {
+    selectedReceiptId = id;
+    document.getElementById("rejectReason").value = "";
+    document.getElementById("rejectModal").style.display = "block";
+}
+
+/* Submit rejection */
+function submitReject() {
+    let reason = document.getElementById("rejectReason").value.trim();
+    if (reason === "") {
+        alert("Please enter rejection reason.");
+        return;
+    }
+    fetch(`/receipt/${selectedReceiptId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reason })
+    }).then(res => res.json())
+    .then(function() {
+        closeModal();
+        loadNotifications();
+        location.reload();
+    }).catch(function(error) {
+        console.log(error);
+        alert("Rejection failed.");
+    });
+}
+
+/* Delete receipt */
+function deleteReceipt(id) {
+    if (!confirm("Delete this receipt permanently?")) {
+        return;
+    }
+    fetch(`/receipt/${id}/delete`, { method: "POST" })
+        .then(res => res.json())
+        .then(function() {
+            loadNotifications();
+            location.reload();
+        }).catch(function(error) {
+            console.log(error);
+            alert("Delete failed.");
+        });
+}
+
+/* View history modal */
+function viewHistory(id) {
+    fetch(`/receipt/${id}/history`)
+        .then(res => res.json())
+        .then(function(data) {
+            document.getElementById("historyContent").innerHTML = `
+            <h2 style="color:#003366;margin-bottom:15px;">Receipt History</h2>
+            <table style="width:100%;">
+                <tr><td><b>Student</b></td><td>${data.student_name}</td></tr>
+                <tr><td><b>Student ID</b></td><td>${data.student_id}</td></tr>
+                <tr><td><b>Status</b></td><td>${data.status}</td></tr>
+                <tr><td><b>Comment</b></td><td>${data.comment}</td></tr>
+                <tr><td><b>Uploaded</b></td><td>${data.uploaded}</td></tr>
+            </table>
+            <br>
+            <button onclick="closeModal()">Close</button>`;
+            document.getElementById("historyModal").style.display = "block";
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
+
+/* Close modals */
+function closeModal() {
+    document.getElementById("rejectModal").style.display = "none";
+    document.getElementById("historyModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target === document.getElementById("rejectModal")) {
+        document.getElementById("rejectModal").style.display = "none";
+    }
+    if (event.target === document.getElementById("historyModal")) {
+        document.getElementById("historyModal").style.display = "none";
+    }
+};
+
+/* ===========================
+   Socket.io for real-time notifications
+=========================== */
+var socket = io();
+
+socket.emit("join", {room: "accounts"});
+
+socket.on("new_receipt", function(data) {
+    // Play alert sound
+    const audio = new Audio("/static/alert.mp3");
+    audio.play();
+
+    // Show alert popup
+    alert("NEW RECEIPT UPLOADED\n\nName: " + data.student_name + "\nID: " + data.student_id);
+
+    // Append to notification panel dynamically
+    const panel = document.getElementById("notifBox");
+    if (panel) {
+        panel.insertAdjacentHTML("afterbegin", `
+            <div class="unread">
+                <b>${data.student_name}</b><br>
+                ${data.student_id}<br>
+                ${data.message}<br>
+                <small>${data.time}</small>
+            </div>
+        `);
+        // Show notifications panel
+        toggleNotifications();
+    }
+    // Add new row to table dynamically
+    const tbody = document.querySelector("#receiptTable tbody");
+    if (tbody) {
+        tbody.insertAdjacentHTML("afterbegin", `
+            <tr>
+                <td>${data.student_id}</td>
+                <td>${data.student_name}</td>
+                <td>Pending</td>
+                <td>${data.time}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        `);
+    }
+});
+
+/* Toggle notification dropdown */
+function toggleNotifications() {
+    let box = document.getElementById("notifBox");
+    if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";
+    } else {
+        box.style.display = "none";
+    }
+}
+
+/* Auto-refresh notifications count every 2 seconds */
+setInterval(function() {
+    fetch("/accounts/unread_count")
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("badge").innerHTML = data.count;
+        });
+}, 2000);
+
+/* Initialize notification load on DOM content loaded */
+document.addEventListener("DOMContentLoaded", function() {
+    loadNotifications();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Payment Management</title>
+
+    <style>
+        :root {
+            --navy: #0b1f3a;
+            --blue: #1769aa;
+            --blue-light: #eaf4ff;
+            --gold: #f4b942;
+            --green: #198754;
+            --ink: #172033;
+            --muted: #64748b;
+            --line: #dbe4ef;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(11, 31, 58, 0.92), rgba(23, 105, 170, 0.82)),
+                url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}") center / cover no-repeat fixed;
+        }
+
+        .page-shell {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 18px 22px;
+        }
+
+        .topbar {
+            position: relative;
+            flex: 0 0 auto;
+            min-height: 92px;
+            padding: 18px 190px 16px 24px;
+            color: var(--white);
+            background: rgba(5, 20, 42, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+        }
+
+        .topbar h1 {
+            margin: 0 0 6px;
+            font-size: clamp(22px, 3vw, 34px);
+            letter-spacing: 0.3px;
+        }
+
+        .topbar p {
+            margin: 0;
+            color: #c9d9ec;
+            font-size: 14px;
+        }
+
+        .dashboard-button {
+            position: absolute;
+            top: 22px;
+            right: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 154px;
+            min-height: 44px;
+            padding: 10px 16px;
+            color: #10213a;
+            font-weight: 700;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ffd166, #f4b942);
+            border: 2px solid rgba(255, 255, 255, 0.75);
+            border-radius: 10px;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .dashboard-button:hover {
+            color: #10213a;
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+        }
+
+        .summary-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .summary-item {
+            padding: 8px 12px;
+            color: #e8f2ff;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 8px;
+        }
+
+        .payment-workspace {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            flex: 1 1 auto;
+            min-height: 0;
+            margin-top: 16px;
+        }
+
+        .term-panel {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 14px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+        }
+
+        .term-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 0 0 auto;
+            min-height: 42px;
+            margin-bottom: 10px;
+            padding: 0 4px 10px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .term-heading h2 {
+            margin: 0;
+            color: var(--navy);
+            font-size: 20px;
+        }
+
+        .term-tag {
+            padding: 5px 9px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--blue);
+            border-radius: 999px;
+        }
+
+        .table-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: #fbfdff;
+        }
+
+        table {
+            width: 100%;
+            min-width: 430px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th,
+        td {
+            padding: 11px 12px;
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: 0;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            background: var(--blue);
+        }
+
+        tbody tr:nth-child(even) td {
+            background: var(--blue-light);
+        }
+
+        tbody tr:hover td {
+            background: #fff6d9;
+        }
+
+        td {
+            color: #243449;
+            font-size: 13px;
+        }
+
+        .amount-cell {
+            color: var(--green);
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .empty-row td {
+            color: var(--muted);
+            text-align: center;
+            font-style: italic;
+        }
+
+        .total-box {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 50px;
+            margin-top: 10px;
+            padding: 10px 14px;
+            color: #5c4300;
+            background: linear-gradient(135deg, #fff4c7, #ffe08a);
+            border: 1px solid #edc75e;
+            border-radius: 9px;
+        }
+
+        .total-label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .total-value {
+            font-size: 18px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .footer-note {
+            flex: 0 0 auto;
+            padding-top: 12px;
+            color: #dbeafe;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 950px) {
+            body {
+                overflow: auto;
+            }
+
+            .page-shell {
+                min-height: 100vh;
+            }
+
+            .payment-workspace {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+
+            .term-panel {
+                min-height: 330px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page-shell {
+                padding: 10px;
+            }
+
+            .topbar {
+                padding: 86px 16px 16px;
+            }
+
+            .dashboard-button {
+                top: 18px;
+                right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="topbar">
+            <h1>Student Payment Management</h1>
+            <p>Review fee payments by {{ "academic semester" if is_health_sciences else "academic term" }} and monitor recorded amounts.</p>
+
+            <a class="dashboard-button" href="{{ url_for('dashboard') }}">
+                Back to Dashboard
+            </a>
+
+            <div class="summary-strip" aria-label="Payment summary">
+                {% if is_health_sciences %}
+                <span class="summary-item">Semester 1: <strong id="summarySemester1">{{ '%.2f'|format(student.semester1_amount or 0) }}</strong></span>
+                <span class="summary-item">Semester 2: <strong id="summarySemester2">{{ '%.2f'|format(student.semester2_amount or 0) }}</strong></span>
+                {% else %}
+                <span class="summary-item">Term 1: <strong id="summaryTerm1">0.00</strong></span>
+                <span class="summary-item">Term 2: <strong id="summaryTerm2">0.00</strong></span>
+                <span class="summary-item">Term 3: <strong id="summaryTerm3">0.00</strong></span>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="payment-workspace" aria-label="Student payment tables">
+            {% if is_health_sciences %}
+            {% for label, payments, table_id, total_id, summary_id in [('Semester 1', semester1_payments, 'semester1', 'insideTotalSemester1', 'summarySemester1'), ('Semester 2', semester2_payments, 'semester2', 'insideTotalSemester2', 'summarySemester2')] %}
+            <article class="term-panel">
+                <div class="term-heading"><h2>{{ label }} Payments</h2><span class="term-tag">{{ label|upper }}</span></div>
+                <div class="table-scroll"><table id="{{ table_id }}"><thead><tr><th>Date</th><th>Amount</th><th>Description</th></tr></thead><tbody>
+                {% for payment in payments %}<tr><td>{{ payment.payment_date.strftime('%Y-%m-%d') }}</td><td class="amount-cell">{{ '%.2f'|format(payment.amount) }}</td><td>{{ payment.description or '' }}</td></tr>{% else %}<tr class="empty-row"><td colspan="3">No {{ label }} payments recorded.</td></tr>{% endfor %}
+                </tbody></table></div><div class="total-box"><span class="total-label">Total for {{ label }}</span><span class="total-value">K <span id="{{ total_id }}">{{ '%.2f'|format(payments|sum(attribute='amount')) }}</span></span></div>
+            </article>
+            {% endfor %}
+            {% else %}
+
+            <article class="term-panel">
+                <div class="term-heading">
+                    <h2>Term 1 Payments</h2>
+                    <span class="term-tag">TERM 1</span>
+                </div>
+                <div class="table-scroll">
+                    <table id="term1">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in term1_payments %}
+                            <tr>
+                                <td>{{ payment.payment_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="amount-cell">{{ payment.amount }}</td>
+                                <td>{{ payment.description or '' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="3">No Term 1 payments recorded.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="total-box">
+                    <span class="total-label">Total for Term 1</span>
+                    <span class="total-value">K <span id="insideTotalTerm1">0.00</span></span>
+                </div>
+            </article>
+
+            <article class="term-panel">
+                <div class="term-heading">
+                    <h2>Term 2 Payments</h2>
+                    <span class="term-tag">TERM 2</span>
+                </div>
+                <div class="table-scroll">
+                    <table id="term2">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in term2_payments %}
+                            <tr>
+                                <td>{{ payment.payment_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="amount-cell">{{ payment.amount }}</td>
+                                <td>{{ payment.description or '' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="3">No Term 2 payments recorded.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="total-box">
+                    <span class="total-label">Total for Term 2</span>
+                    <span class="total-value">K <span id="insideTotalTerm2">0.00</span></span>
+                </div>
+            </article>
+
+            <article class="term-panel">
+                <div class="term-heading">
+                    <h2>Term 3 Payments</h2>
+                    <span class="term-tag">TERM 3</span>
+                </div>
+                <div class="table-scroll">
+                    <table id="term3">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in term3_payments %}
+                            <tr>
+                                <td>{{ payment.payment_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="amount-cell">{{ payment.amount }}</td>
+                                <td>{{ payment.description or '' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="3">No Term 3 payments recorded.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="total-box">
+                    <span class="total-label">Total for Term 3</span>
+                    <span class="total-value">K <span id="insideTotalTerm3">0.00</span></span>
+                </div>
+            </article>
+
+            {% endif %}
+        </section>
+
+        <footer class="footer-note">
+            Payment records are displayed from the university clearance system.
+        </footer>
+    </main>
+
+    <script>
+        function amountFromCell(cell) {
+            if (!cell) return 0;
+            const cleaned = cell.textContent.replace(/[^0-9.-]/g, '');
+            const amount = Number.parseFloat(cleaned);
+            return Number.isFinite(amount) ? amount : 0;
+        }
+
+        function updateTermTotal(tableId, totalId, summaryId) {
+            const table = document.getElementById(tableId);
+            const totalElement = document.getElementById(totalId);
+            const summaryElement = document.getElementById(summaryId);
+
+            if (!table || !totalElement || !summaryElement) return;
+
+            let total = 0;
+            table.querySelectorAll('tbody tr').forEach(function(row) {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 3 && !row.classList.contains('empty-row')) {
+                    total += amountFromCell(cells[1]);
+                }
+            });
+
+            const formatted = total.toFixed(2);
+            totalElement.textContent = formatted;
+            summaryElement.textContent = formatted;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTermTotal('term1', 'insideTotalTerm1', 'summaryTerm1');
+            updateTermTotal('term2', 'insideTotalTerm2', 'summaryTerm2');
+            updateTermTotal('term3', 'insideTotalTerm3', 'summaryTerm3');
+        });
+    </script>
+</body>
+</html>
