@@ -1,47 +1,178 @@
 # Python
-__pycache__/
+
+**pycache**/
 *.py[cod]
 *.pyo
+*.pyd
+*$py.class
 
-# Virtual environment
+# Virtual environments
+
 venv/
 env/
 .venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment secrets
+
+.env
+.envrc
 
 # Database files
+
 *.db
 *.sqlite
 *.sqlite3
 instance/
 
-# Environment secrets
-.env
-
 # Uploaded files
+
 uploads/
 receipts/
 uploaded_documents/
 
-# Generated signatures
+# Generated signatures and approval marks
+
 static/signatures/
 static/approval_marks/
 
 # Backups
+
 backups/
 
-# Python build files
+# Python build/package files
+
 build/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 *.spec
 
-# IDE
+# PyInstaller
+
+*.manifest
+
+# Testing / coverage
+
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.coverage
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+
+# Flask
+
+.webassets-cache
+
+# Scrapy
+
+.scrapy
+
+# Jupyter
+
+.ipynb_checkpoints
+
+# IPython
+
+profile_default/
+ipython_config.py
+
+# IDEs
+
 .vscode/
 .idea/
+.spyderproject
+.spyproject
+.ropeproject
 
 # Temporary files
+
 *.tmp
 *.log
+tempCodeRunnerFile.py
+
+# Type checking / linters
+
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Cython
+
+cython_debug/
+
+# PDM
+
+.pdm-python
+.pdm-build/
+
+# Pixi
+
+.pixi
+
+# PEP 582
+
+**pypackages**/
+
+# Celery
+
+celerybeat-schedule
+celerybeat.pid
+
+# Redis
+
+*.rdb
+*.aof
+*.pid
+
+# RabbitMQ
+
+mnesia/
+rabbitmq/
+rabbitmq-data/
+
+# ActiveMQ
+
+activemq-data/
+
+# Documentation builds
+
+docs/_build/
+/site
 
 # Windows
+
 Thumbs.db
 Desktop.ini
+
+# Other local configuration
+
+local_settings.py
+.pypirc
+.abstra/
+.streamlit/secrets.toml
