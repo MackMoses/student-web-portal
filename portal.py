@@ -159,6 +159,7 @@ app.config.update(
     MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME"),
 )
 
+
 mail = Mail(app)
 
 RECEIPT_ACTION_DENIED_MESSAGE = (
@@ -181,7 +182,6 @@ def clean_expired_reset_codes():
     ).delete(synchronize_session=False)
     db.session.commit()
 
-from datetime import time
 def send_email_with_retry(message, attempts=3):
     """Send an email using a fresh SMTP connection for each attempt."""
     last_error = None
@@ -5369,28 +5369,14 @@ def reset_password():
 # ==========================================================
 
 if __name__ == "__main__":
-
     with app.app_context():
-
         db.create_all()
 
-
-    port = int(
-        os.environ.get(
-            "PORT",
-            5000
-        )
-    )
-
+    port = int(os.environ.get("PORT", 5000))
 
     socketio.run(
-
         app,
-
         host="0.0.0.0",
-
         port=port,
-
-        debug=True
-
+        debug=False,
     )
