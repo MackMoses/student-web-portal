@@ -203,28 +203,119 @@
     @keyframes fireGlow { from { opacity: .72; } to { opacity: 1; } }
     @keyframes flameWave { from { transform: translateX(-10%) skewX(-3deg) scaleY(.88); } to { transform: translateX(-2%) skewX(3deg) scaleY(1.1); } }
 
+    /* ==========================================================
+       SMARTPHONE SCROLLING FIX
+       The registration page can scroll vertically and horizontally.
+       The moving text and fire-frame remain fixed and visible below.
+       ========================================================== */
     @media (max-width: 760px) {
-      .page-shell { padding: 14px 13px 68px; }
-      .registration-card { height: calc(100dvh - 88px); max-height: none; }
-      .card-header { padding: 12px 24px; }
+      html {
+        width: 100%;
+        min-height: 100%;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      body {
+        width: 100%;
+        min-width: 320px;
+        min-height: 100dvh;
+        height: auto;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background-attachment: scroll;
+      }
+
+      .page-shell {
+        width: 100%;
+        min-width: 320px;
+        height: auto;
+        min-height: 100dvh;
+        display: block;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding: 14px 13px 92px;
+      }
+
+      .registration-card {
+        width: 100%;
+        min-width: 320px;
+        height: auto;
+        min-height: auto;
+        max-height: none;
+        overflow: visible;
+        border-radius: 22px;
+      }
+
+      .card-header {
+        padding: 12px 20px;
+        align-items: center;
+        flex-direction: row;
+        gap: 10px;
+      }
+
       .institution-logo { width: 43px; height: 43px; }
-      .card-header { align-items: center; flex-direction: row; gap: 10px; }
-      .content-grid { grid-template-columns: 1fr 1.35fr; height: calc(100% - 67px); }
-      .welcome-panel { padding: 18px 20px; }
+
+      .content-grid {
+        grid-template-columns: 1fr 1.35fr;
+        height: auto;
+        min-height: auto;
+      }
+
+      .welcome-panel {
+        padding: 18px 20px;
+        min-height: auto;
+      }
+
       .welcome-panel h1 { margin: 12px 0 7px; font-size: 1.75rem; }
       .welcome-panel p { line-height: 1.35; font-size: .79rem; }
       .benefits { gap: 6px; margin-top: 14px; font-size: .7rem; }
-      .form-panel { padding: 14px 20px 16px; }
+
+      .form-panel {
+        min-height: auto;
+        overflow: visible;
+        padding: 14px 20px 16px;
+      }
+
       .form-intro { margin-bottom: 10px; }
       .form-grid { gap: 7px 9px; }
-      input, select { height: 32px; padding: 6px 9px; }
+      input, select { height: 32px; padding: 6px 9px; max-width: 100%; }
       .register-button { margin-top: 9px; padding: 10px; }
+
+      /* Keep the moving text and fire-frame fixed at the bottom. */
+      .footer {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+      }
     }
 
     @media (max-width: 500px) {
-      .content-grid { grid-template-columns: 1fr; height: calc(100% - 67px); }
+      .page-shell {
+        padding: 10px 10px 92px;
+      }
+
+      .registration-card {
+        min-width: 320px;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
       .welcome-panel { display: none; }
-      .form-grid { grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 8px;
+      }
+
       .field.full-width { grid-column: 1 / -1; }
       .header-badge { align-self: center; padding: 6px 9px; font-size: .65rem; }
       .form-panel { padding: 12px 18px 14px; }

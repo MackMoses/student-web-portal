@@ -71,6 +71,8 @@ from sqlalchemy import or_
 from pdf2image import convert_from_bytes
 from flask import (after_this_request, jsonify, redirect, send_file, session, url_for,)
 import re
+import requests
+from html import escape
 
 
 
@@ -183,41 +185,114 @@ def clean_expired_reset_codes():
     db.session.commit()
 
 def send_email_with_retry(message, attempts=3):
-    """Send an email using a fresh SMTP connection for each attempt."""
+    """Send an existing Flask-Mail Message through the Brevo HTTPS API."""
+
+    brevo_api_key = (os.getenv("BREVO_API_KEY") or "").strip()
+    sender_email = (os.getenv("MAIL_FROM_EMAIL") or "").strip()
+    sender_name = (os.getenv("MAIL_FROM_NAME") or "Rockview University").strip()
+    reply_to = (os.getenv("MAIL_REPLY_TO") or sender_email).strip()
+
+    if not brevo_api_key:
+        app.logger.error("BREVO_API_KEY is missing from the environment.")
+        return False
+
+    if not sender_email:
+        app.logger.error("MAIL_FROM_EMAIL is missing from the environment.")
+        return False
+
+    recipients = [
+        str(address).strip()
+        for address in (message.recipients or [])
+        if str(address).strip()
+    ]
+
+    if not recipients:
+        app.logger.error("Email was not sent because there is no recipient.")
+        return False
+
+    subject = str(
+        getattr(message, "subject", None)
+        or "Rockview University Notification"
+    )
+
+    plain_text = str(getattr(message, "body", None) or "")
+    html_body = getattr(message, "html", None)
+
+    if not html_body:
+        html_body = (
+            "<p>"
+            + escape(plain_text).replace("\\n", "")
+            + "</p>"
+        )
+
+    payload = {
+        "sender": {
+            "name": sender_name,
+            "email": sender_email,
+        },
+        "to": [
+            {"email": recipient}
+            for recipient in recipients
+        ],
+        "subject": subject,
+        "htmlContent": html_body,
+        "textContent": plain_text,
+    }
+
+    if reply_to:
+        payload["replyTo"] = {
+            "email": reply_to
+        }
+
+    headers = {
+        "accept": "application/json",
+        "api-key": brevo_api_key,
+        "content-type": "application/json",
+    }
+
     last_error = None
 
     for attempt in range(1, attempts + 1):
         try:
-            # A new connection is opened on every attempt. This avoids
-            # reusing a connection that Gmail has already closed.
-            with mail.connect() as connection:
-                connection.send(message)
+            response = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                json=payload,
+                headers=headers,
+                timeout=30,
+             )
 
-            app.logger.info(
-                "Email sent successfully on attempt %s to %s",
-                attempt,
-                ", ".join(message.recipients or [])
+            if 200 <= response.status_code < 300:
+                app.logger.info(
+                    "Email sent through Brevo on attempt %s to %s. Response: %s",
+                    attempt,
+                    ", ".join(recipients),
+                    response.text,
+                )
+                return True
+
+            raise RuntimeError(
+                f"Brevo HTTP {response.status_code}: {response.text}"
             )
-            return True
 
         except Exception as error:
             last_error = error
+
             app.logger.warning(
-                "Email attempt %s/%s failed for %s: %s",
+                "Brevo email attempt %s/%s failed for %s: %s",
                 attempt,
                 attempts,
-                ", ".join(message.recipients or []),
-                error
+                ", ".join(recipients),
+                error,
             )
 
             if attempt < attempts:
-                time.sleep(2)
+                time.sleep(5)
 
     app.logger.error(
-        "Email failed after %s attempts for %s: %s",
+        "Brevo email failed after %s attempts for %s: %s",
         attempts,
-        ", ".join(message.recipients or []),
-        last_error
+        ", ".join(recipients),
+        last_error,
     )
     return False
 
@@ -274,7 +349,8 @@ Rockview University
 """
 
     try:
-        mail.send(msg)
+        send_email_with_retry(msg)
+
         print(f"Receipt confirmation email sent to {student.email}.")
         return True
     except Exception as error:
@@ -340,7 +416,8 @@ Rockview University
 """
 
     try:
-        mail.send(msg)
+        send_email_with_retry(msg)
+
         print(
             f"{department_name} signature email sent to {student.email}."
         )
@@ -518,7 +595,8 @@ Thank you.
 Rockview University
 """
 
-    mail.send(msg)
+    send_email_with_retry(msg)
+
 
 migrate = Migrate(app, db)
 app.jinja_env.globals.update(getattr=getattr)
@@ -969,8 +1047,6 @@ def login():
         return render_template('login.html', error=error)
     return render_template('login.html')
 
-from flask import session, redirect, url_for, render_template, flash
-from datetime import datetime
 
 @app.route('/dashboard')
 def dashboard():
@@ -2324,64 +2400,273 @@ def view_students():
 
 @app.route('/department_login', methods=['GET', 'POST'])
 def department_login():
+
     if request.method == 'POST':
+
+        # ==========================================================
+        # GET FIRST-LOGIN INFORMATION
+        # ==========================================================
+
         dept_id = (
             request.form.get('department_id') or ''
         ).strip().lower()
 
-        password = request.form.get('password') or ''
-        second_password = request.form.get('second_password') or ''
+        password = (
+            request.form.get('password') or ''
+        )
+
         officer_name = (
             request.form.get('officer_name') or ''
         ).strip()
 
-        # Validate department ID.
-        if dept_id not in DEPARTMENT_PASSWORDS:
-            flash('Invalid Department ID', 'error')
-            return redirect(url_for('department_login'))
 
-        # Validate the original department password.
+        # ==========================================================
+        # VALIDATE OFFICER NAME
+        # ==========================================================
+
+        if not officer_name:
+
+            flash(
+                'Please enter your officer full name before logging in.',
+                'error'
+            )
+
+            return redirect(
+                url_for('department_login')
+            )
+
+
+        # ==========================================================
+        # VALIDATE DEPARTMENT ID
+        # ==========================================================
+
+        if dept_id not in DEPARTMENT_PASSWORDS:
+
+            flash(
+                'Invalid Department ID.',
+                'error'
+            )
+
+            return redirect(
+                url_for('department_login')
+            )
+
+
+        # ==========================================================
+        # VALIDATE FIRST DEPARTMENT PASSWORD ONLY
+        # ==========================================================
+
         expected_password = DEPARTMENT_PASSWORDS[dept_id]
 
         if password != expected_password:
-            flash('Incorrect password', 'error')
-            return redirect(url_for('department_login'))
 
-        # Validate that the second password exists for this department.
-        expected_second_password = SECOND_DEPARTMENT_PASSWORDS.get(dept_id)
+            flash(
+                'Incorrect department password.',
+                'error'
+            )
+
+            return redirect(
+                url_for('department_login')
+            )
+
+
+        # ==========================================================
+        # SAVE FIRST-LEVEL VERIFIED INFORMATION TEMPORARILY
+        # ==========================================================
+
+        session['pending_department_id'] = dept_id
+
+        session['pending_officer_name'] = officer_name
+
+        session['first_layer_authenticated'] = True
+
+        session.modified = True
+
+
+        # ==========================================================
+        # GO TO SECOND-LAYER SECURITY PAGE
+        # ==========================================================
+
+        return redirect(
+            url_for('department_second_security')
+        )
+
+
+    # ==============================================================
+    # DISPLAY FIRST LOGIN PAGE
+    # ==============================================================
+
+    return render_template(
+        'department_login.html'
+    )
+
+@app.route('/department_second_security', methods=['GET', 'POST'])
+def department_second_security():
+
+    # ==========================================================
+    # MAKE SURE FIRST LOGIN WAS COMPLETED
+    # ==========================================================
+
+    if not session.get('first_layer_authenticated'):
+
+        flash(
+            'Please complete the first department login first.',
+            'error'
+        )
+
+        return redirect(
+            url_for('department_login')
+        )
+
+
+    # ==========================================================
+    # GET TEMPORARILY SAVED DETAILS
+    # ==========================================================
+
+    dept_id = (
+        session.get('pending_department_id') or ''
+    ).strip().lower()
+
+    officer_name = (
+        session.get('pending_officer_name') or ''
+    ).strip()
+
+
+    # ==========================================================
+    # VALIDATE SESSION DETAILS
+    # ==========================================================
+
+    if not dept_id or not officer_name:
+
+        session.pop(
+            'pending_department_id',
+            None
+        )
+
+        session.pop(
+            'pending_officer_name',
+            None
+        )
+
+        session.pop(
+            'first_layer_authenticated',
+            None
+        )
+
+        flash(
+            'Your login session has expired. Please login again.',
+            'error'
+        )
+
+        return redirect(
+            url_for('department_login')
+        )
+
+
+    # ==========================================================
+    # PROCESS SECOND PASSWORD
+    # ==========================================================
+
+    if request.method == 'POST':
+
+        second_password = (
+            request.form.get('second_password') or ''
+        )
+
+
+        # ======================================================
+        # GET EXPECTED SECOND PASSWORD
+        # ======================================================
+
+        expected_second_password = (
+            SECOND_DEPARTMENT_PASSWORDS.get(dept_id)
+        )
+
 
         if expected_second_password is None:
+
             flash(
                 'Second password is not configured for this department.',
                 'error'
             )
-            return redirect(url_for('department_login'))
 
-        # Validate the department-specific second password.
+            return redirect(
+                url_for('department_login')
+            )
+
+
+        # ======================================================
+        # VALIDATE SECOND PASSWORD
+        # ======================================================
+
         if second_password != expected_second_password:
+
             flash(
-                'Incorrect second-layer security password',
+                'Incorrect second-layer security password.',
                 'error'
             )
-            return redirect(url_for('department_login'))
 
-        # Validate the officer name used by the signature and PDF system.
-        if not officer_name:
-            flash(
-                'Please enter the officer full name before logging in.',
-                'error'
+            return redirect(
+                url_for('department_second_security')
             )
-            return redirect(url_for('department_login'))
 
-        # Save the exact values used by the signature route.
+
+        # ======================================================
+        # FINAL AUTHENTICATION
+        # ======================================================
+
         session['department_id'] = dept_id
+
         session['officer_name'] = officer_name
+
         session['department_authenticated'] = True
+
+
+        # ======================================================
+        # REMOVE TEMPORARY FIRST-LAYER DATA
+        # ======================================================
+
+        session.pop(
+            'pending_department_id',
+            None
+        )
+
+        session.pop(
+            'pending_officer_name',
+            None
+        )
+
+        session.pop(
+            'first_layer_authenticated',
+            None
+        )
+
         session.modified = True
 
-        return redirect(url_for('department_dashboard'))
 
-    return render_template('department_login.html')
+        # ======================================================
+        # ACCESS DEPARTMENT DASHBOARD
+        # ======================================================
+
+        flash(
+            'Security verification successful. Welcome to your department dashboard.',
+            'success'
+        )
+
+        return redirect(
+            url_for('department_dashboard')
+        )
+
+
+    # ==========================================================
+    # DISPLAY SECOND SECURITY PAGE
+    # ==========================================================
+
+    return render_template(
+        'department_second_security.html',
+        department=dept_id,
+        officer_name=officer_name
+    )
 
 @app.route('/department_logout')
 def department_logout():
@@ -3256,7 +3541,8 @@ def send_confirmation_email(receipt):
     Thank you.
     """
 
-    mail.send(msg)
+    send_email_with_retry(msg)
+
 
 def notification_student_details(notification):
     """Read the student name and ID from the existing notification message."""
@@ -5243,7 +5529,8 @@ def forgot_password():
                 'This code expires in 10 minutes and can be used only once.\n\n'
                 'Rockview University Student Services'
             )
-            mail.send(message)
+            send_email_with_retry(message)
+
 
         # Keep this message general so account details are not exposed.
         flash(

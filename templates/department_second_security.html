@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Second Security Verification | Rockview University</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    html,
+    body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+
+    body {
+        min-width: 320px;
+        min-height: 100vh;
+        padding: 20px;
+
+        overflow-x: auto;
+        overflow-y: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-family: Georgia, "Times New Roman", serif;
+
+        background:
+            linear-gradient(
+                rgba(0, 32, 64, .80),
+                rgba(0, 32, 64, .80)
+            ),
+            url("{{ url_for('static', filename='imgs/Rockbg.jpg') }}")
+            center / cover
+            fixed
+            no-repeat;
+    }
+
+
+    .security-wrapper {
+        width: 100%;
+        max-width: 480px;
+        min-width: 300px;
+
+        margin: auto;
+    }
+
+
+    .security-card {
+        overflow: hidden;
+
+        background: #ffffff;
+
+        border: 1px solid rgba(255,255,255,.8);
+
+        border-radius: 5px;
+
+        box-shadow:
+            0 15px 40px
+            rgba(0,0,0,.40);
+    }
+
+
+    .institution-header {
+
+        padding: 20px;
+
+        color: #ffffff;
+
+        text-align: center;
+
+        background: #003366;
+
+        border-bottom:
+            5px solid #c99a2e;
+    }
+
+
+    .institution-logo {
+
+        display: block;
+
+        width: 60px;
+        height: 60px;
+
+        margin:
+            0 auto 10px;
+
+        object-fit: contain;
+
+        background: #ffffff;
+
+        border:
+            2px solid #ffffff;
+
+        border-radius: 50%;
+    }
+
+
+    .institution-name {
+
+        margin: 0;
+
+        font-size: 22px;
+
+        font-weight: bold;
+
+        letter-spacing: .7px;
+    }
+
+
+    .institution-subtitle {
+
+        margin:
+            5px 0 0;
+
+        color: #e6edf5;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 11px;
+
+        text-transform: uppercase;
+    }
+
+
+    .security-content {
+
+        padding:
+            28px
+            30px
+            30px;
+    }
+
+
+    .security-title {
+
+        margin:
+            0 0 8px;
+
+        color: #003366;
+
+        text-align: center;
+
+        font-size: 22px;
+    }
+
+
+    .security-message {
+
+        margin:
+            0 0 20px;
+
+        color: #666666;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+
+        text-align: center;
+    }
+
+
+    .officer-info {
+
+        margin-bottom: 20px;
+
+        padding: 13px;
+
+        background: #f3f7fa;
+
+        border:
+            1px solid #d5e1e8;
+
+        border-left:
+            5px solid #003366;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 12px;
+
+        line-height: 1.7;
+    }
+
+
+    .officer-info strong {
+
+        color: #003366;
+    }
+
+
+    .form-group {
+
+        margin-bottom: 18px;
+    }
+
+
+    label {
+
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: #263746;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 13px;
+
+        font-weight: bold;
+    }
+
+
+    input {
+
+        width: 100%;
+
+        height: 46px;
+
+        padding:
+            0 13px;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 15px;
+
+        border:
+            1px solid #aebbc6;
+
+        border-radius: 4px;
+
+        outline: none;
+    }
+
+
+    input:focus {
+
+        border-color: #003366;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(0,51,102,.15);
+    }
+
+
+    .verify-button {
+
+        width: 100%;
+
+        height: 48px;
+
+        color: #ffffff;
+
+        background: #003366;
+
+        border: none;
+
+        border-radius: 4px;
+
+        cursor: pointer;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 14px;
+
+        font-weight: bold;
+
+        letter-spacing: .5px;
+    }
+
+
+    .verify-button:hover {
+
+        background: #00264d;
+    }
+
+
+    .alert-list {
+
+        margin:
+            0 0 18px;
+
+        padding: 0;
+
+        list-style: none;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+    }
+
+
+    .alert-list li {
+
+        padding:
+            10px;
+
+        margin-bottom: 7px;
+
+        color: #842029;
+
+        background: #f8d7da;
+
+        border:
+            1px solid #f1aeb5;
+
+        border-radius: 4px;
+
+        font-size: 12px;
+    }
+
+
+    .security-note {
+
+        margin-top: 20px;
+
+        padding-top: 14px;
+
+        color: #777777;
+
+        border-top:
+            1px solid #e1e5e8;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 10px;
+
+        line-height: 1.5;
+
+        text-align: center;
+    }
+
+
+    .footer-note {
+
+        margin-top: 12px;
+
+        color: #ffffff;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size: 10px;
+
+        text-align: center;
+    }
+
+
+    /* ==========================================
+       MOBILE PHONE SUPPORT
+       VERTICAL + HORIZONTAL SCROLLING
+    ========================================== */
+
+    @media (max-width: 600px) {
+
+        body {
+
+            display: block;
+
+            padding:
+                15px 10px;
+
+            overflow-x: auto;
+
+            overflow-y: auto;
+        }
+
+
+        .security-wrapper {
+
+            width: 100%;
+
+            min-width: 300px;
+
+            margin:
+                20px auto;
+        }
+
+
+        .security-content {
+
+            padding:
+                22px
+                18px;
+        }
+
+
+        .institution-header {
+
+            padding:
+                16px;
+        }
+
+
+        .institution-logo {
+
+            width: 52px;
+            height: 52px;
+        }
+
+
+        .institution-name {
+
+            font-size: 19px;
+        }
+
+
+        .security-title {
+
+            font-size: 20px;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<main class="security-wrapper">
+
+
+    <section class="security-card">
+
+
+        <!-- UNIVERSITY HEADER -->
+
+        <header class="institution-header">
+
+
+            <img
+                class="institution-logo"
+
+                src="{{ url_for(
+                    'static',
+                    filename='imgs/OIP.jpeg'
+                ) }}"
+
+                alt="Rockview University Logo"
+
+                onerror="this.style.display='none';"
+            >
+
+
+            <h1 class="institution-name">
+
+                ROCKVIEW UNIVERSITY
+
+            </h1>
+
+
+            <p class="institution-subtitle">
+
+                Online University Clearance System
+
+            </p>
+
+
+        </header>
+
+
+
+        <!-- SECURITY CONTENT -->
+
+        <div class="security-content">
+
+
+            <h2 class="security-title">
+
+                Second Security Verification
+
+            </h2>
+
+
+            <p class="security-message">
+
+                Your first department password has been verified successfully.
+                Please enter your second-layer security password to access
+                the Department Dashboard.
+
+            </p>
+
+
+
+            <!-- OFFICER INFORMATION -->
+
+            <div class="officer-info">
+
+                <strong>Officer:</strong>
+
+                {{ officer_name }}
+
+                <br>
+
+                <strong>Department:</strong>
+
+                {{ department|upper }}
+
+            </div>
+
+
+
+            <!-- FLASH MESSAGES -->
+
+            {% with messages = get_flashed_messages() %}
+
+                {% if messages %}
+
+                    <ul
+                        class="alert-list"
+                        role="alert"
+                    >
+
+                        {% for msg in messages %}
+
+                            <li>
+
+                                {{ msg }}
+
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+
+            <!-- SECOND PASSWORD FORM -->
+
+            <form
+                method="POST"
+
+                action="{{ url_for(
+                    'department_second_security'
+                ) }}"
+
+                autocomplete="off"
+            >
+
+
+                <div class="form-group">
+
+
+                    <label
+                        for="second_password"
+                    >
+
+                        Second-Layer Security Password *
+
+                    </label>
+
+
+                    <input
+
+                        type="password"
+
+                        id="second_password"
+
+                        name="second_password"
+
+                        placeholder="Enter your second security password"
+
+                        required
+
+                        autofocus
+
+                    >
+
+
+                </div>
+
+
+
+                <button
+                    type="submit"
+                    class="verify-button"
+                >
+
+                    VERIFY & ACCESS DASHBOARD
+
+                </button>
+
+
+            </form>
+
+
+
+            <p class="security-note">
+
+                This is the final security verification step.
+                Authorized department officers only.
+
+            </p>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <p class="footer-note">
+
+        Rockview University Online Clearance System
+
+    </p>
+
+
+</main>
+```
+
+</body>
+
+</html>

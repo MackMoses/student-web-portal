@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Electronic Signature | Rockview University</title>
 
   <style>
@@ -13,16 +15,18 @@
       --accent: #00a878;
       --ink: #111111;
       --muted: #5b6472;
+      --blue-glow: #007bff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html,
     body {
       width: 100%;
-      height: 100%;
+      min-height: 100%;
       margin: 0;
-      overflow: hidden;
     }
 
     body {
@@ -30,23 +34,32 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 12px;
+      padding: 15px;
+
       color: #1f2937;
       font-family: Arial, Helvetica, sans-serif;
+
       background:
-        radial-gradient(circle at 8% 12%, rgba(0, 168, 120, .22), transparent 28%),
-        radial-gradient(circle at 92% 82%, rgba(11, 93, 167, .24), transparent 30%),
-        linear-gradient(135deg, #eaf4ff, #f8fbff 48%, #edf9f4);
+        radial-gradient(circle at 12% 16%, rgba(0, 168, 120, .20), transparent 25%),
+        radial-gradient(circle at 88% 78%, rgba(11, 93, 167, .22), transparent 28%),
+        linear-gradient(135deg, #e9f3ff, #f8fbff 48%, #ecfaf4);
+
+      background-size: 140% 140%;
+      animation: backgroundFlow 16s ease-in-out infinite alternate;
     }
 
     body::before,
     body::after {
       position: fixed;
       z-index: -1;
+
       width: 230px;
       height: 230px;
+
       border-radius: 50%;
+
       content: "";
+
       filter: blur(3px);
       opacity: .45;
       pointer-events: none;
@@ -55,327 +68,1269 @@
     body::before {
       top: -90px;
       left: -70px;
-      background: linear-gradient(135deg, rgba(0, 51, 102, .46), rgba(0, 168, 120, .20));
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0, 51, 102, .46),
+          rgba(0, 168, 120, .20)
+        );
+
       animation: drift 9s ease-in-out infinite alternate;
     }
 
     body::after {
       right: -80px;
       bottom: -100px;
-      background: linear-gradient(135deg, rgba(0, 168, 120, .36), rgba(11, 93, 167, .20));
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0, 168, 120, .36),
+          rgba(11, 93, 167, .20)
+        );
+
       animation: drift 11s ease-in-out infinite alternate-reverse;
     }
 
+
+    /* =====================================================
+       MAIN CONTAINER
+       ===================================================== */
+
     .container {
-      width: min(900px, 100%);
-      height: calc(100vh - 24px);
-      max-height: calc(100vh - 24px);
-      overflow: hidden;
-      padding: 14px 30px;
-      border: 1px solid rgba(255, 255, 255, .82);
+      position: relative;
+
+      width: min(760px, 100%);
+      padding: 18px 24px 22px;
+
+      border: 1px solid rgba(11, 93, 167, .25);
       border-radius: 20px;
-      background: rgba(255, 255, 255, .97);
-      box-shadow: 0 20px 45px rgba(0, 51, 102, .18), 0 4px 12px rgba(0, 0, 0, .08);
+
+      background: rgba(255, 255, 255, .96);
+
+      box-shadow:
+        0 18px 42px rgba(0, 51, 102, .16),
+        0 0 0 1px rgba(0, 168, 120, .08) inset;
+
       animation: pageEnter .8s ease-out both;
     }
 
+    .container::before {
+      position: absolute;
+      inset: 5px;
+
+      z-index: -1;
+
+      border: 1px solid rgba(0, 123, 255, .25);
+      border-radius: 16px;
+
+      content: "";
+
+      pointer-events: none;
+
+      animation: framePulse 5s ease-in-out infinite;
+    }
+
+
+    /* =====================================================
+       HEADINGS
+       ===================================================== */
+
     h2 {
       margin: 0;
+
       color: var(--primary);
+
       text-align: center;
-      font-size: clamp(1.35rem, 3vw, 1.85rem);
+
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+
       animation: titleGlow 3s ease-in-out infinite;
     }
 
     .page-heading {
-      margin: 2px 0 8px;
+      margin: 4px 0 12px;
+
       color: var(--muted);
+
       text-align: center;
-      font-size: clamp(.95rem, 2vw, 1.15rem);
-      font-weight: 700;
+
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      font-weight: bold;
     }
 
     .section-title {
-      margin: 7px 0 2px;
+      position: relative;
+      margin: 18px 0 5px;
+
       color: var(--secondary);
+
       text-align: center;
+
       font-size: 1rem;
+    }
+
+    /* Visible pen icon for both signature sections */
+    .signature-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .signature-title::before {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      color: #ffffff;
+      font-size: 20px;
+      line-height: 1;
+      content: "✎";
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 3px 9px rgba(0, 51, 102, .25);
     }
 
     .section-title::after {
       display: block;
-      width: 52px;
+
+      width: 55px;
       height: 3px;
-      margin: 3px auto 0;
+
+      margin: 5px auto 0;
+
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--secondary), var(--accent));
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--secondary),
+          var(--accent)
+        );
+
       content: "";
     }
 
     .note {
-      margin: 2px auto 4px;
+      margin: 5px auto 8px;
+
       color: var(--muted);
+
       text-align: center;
-      font-size: .75rem;
-      line-height: 1.2;
+
+      font-size: .78rem;
+      line-height: 1.4;
     }
 
-    .canvas-wrap {
-      position: relative;
+
+    /* =====================================================
+       PEN SETTINGS BOX
+       ===================================================== */
+
+    .pen-settings {
+      width: min(520px, 100%);
+
+      margin: 12px auto 16px;
+      padding: 13px 16px;
+
+      border: 2px solid rgba(0, 91, 167, .65);
+      border-radius: 14px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(234, 244, 255, .95),
+          rgba(248, 252, 255, .95)
+        );
+
+      box-shadow:
+        0 0 8px rgba(0, 123, 255, .20),
+        0 0 18px rgba(0, 123, 255, .15);
+
+      animation: settingsGlow 3s ease-in-out infinite;
+    }
+
+    .pen-settings-title {
+      margin: 0 0 10px;
+
+      color: var(--primary);
+
+      text-align: center;
+
+      font-size: .9rem;
+      font-weight: bold;
+    }
+
+    .pen-controls {
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 12px;
+    }
+
+    .pen-control {
       display: flex;
-      justify-content: center;
-      width: 100%;
-      padding: 4px;
-      border-radius: 13px;
-      background: linear-gradient(120deg, rgba(0, 51, 102, .2), rgba(0, 168, 120, .26), rgba(11, 93, 167, .2));
-      background-size: 240% 240%;
-      animation: borderFlow 5s ease-in-out infinite;
+      flex-direction: column;
+
+      gap: 5px;
     }
 
-    .canvas-wrap::after {
-      position: absolute;
-      inset: 3px;
-      border: 1px solid rgba(0, 168, 120, .3);
-      border-radius: 10px;
-      content: "";
-      pointer-events: none;
-      animation: innerPulse 2.8s ease-in-out infinite;
+    .pen-control label {
+      color: #003366;
+
+      font-size: .75rem;
+      font-weight: bold;
     }
+
+    .pen-control select {
+      width: 100%;
+      height: 38px;
+
+      padding: 0 10px;
+
+      border: 1px solid #8fb9df;
+      border-radius: 8px;
+
+      color: #1f2937;
+
+      background: #ffffff;
+
+      font-size: .8rem;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      outline: none;
+
+      transition: .25s ease;
+    }
+
+    .pen-control select:focus {
+      border-color: #007bff;
+
+      box-shadow:
+        0 0 0 3px rgba(0, 123, 255, .15);
+    }
+
+
+    /* =====================================================
+       BLUE SIGNATURE BORDER BOX
+       ===================================================== */
+
+    .signature-border-box {
+      position: relative;
+
+      width: min(560px, 100%);
+
+      margin: 0 auto;
+
+      padding: 6px;
+
+      border-radius: 16px;
+
+      background: linear-gradient(
+        120deg,
+        #b30000,
+        #e53935,
+        #198754,
+        #39b54a,
+        #b30000
+      );
+
+      background-size: 300% 300%;
+
+      box-shadow:
+        0 0 10px rgba(0, 123, 255, .35),
+        0 0 25px rgba(0, 123, 255, .20),
+        0 8px 20px rgba(0, 51, 102, .15);
+
+      animation: blueBorderFlow 5s ease-in-out infinite, redGreenCardFlow 6s linear infinite;
+    }
+
+    .signature-border-box::before {
+      position: absolute;
+
+      inset: -2px;
+
+      border-radius: 18px;
+
+      border: 2px solid rgba(0, 123, 255, .45);
+
+      content: "";
+
+      filter: blur(2px);
+
+      pointer-events: none;
+
+      animation: outerBluePulse 2.5s ease-in-out infinite;
+    }
+
+
+    /* =====================================================
+       CANVAS
+       ===================================================== */
 
     canvas {
       position: relative;
-      z-index: 1;
+      z-index: 2;
+
       display: block;
+
       width: 100%;
-      height: auto;
-      border: 2px solid var(--ink);
-      border-radius: 8px;
-      background: #fff;
+
+      border: 2px solid #003366;
+      border-radius: 11px;
+
+      background: #ffffff;
+
       cursor: crosshair;
+
       touch-action: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
-      transition: box-shadow .25s ease, transform .25s ease;
+
+      box-shadow:
+        inset 0 0 10px rgba(0, 51, 102, .05),
+        0 3px 10px rgba(0, 0, 0, .10);
+
+      transition:
+        transform .25s ease,
+        box-shadow .25s ease;
     }
 
-    canvas:hover,
-    canvas:focus {
-      outline: none;
-      box-shadow: 0 7px 18px rgba(0, 168, 120, .25);
+    canvas:hover {
       transform: translateY(-1px);
+
+      box-shadow:
+        0 7px 18px rgba(0, 123, 255, .20);
     }
 
-    /* Large rectangular signature fields */
-    #approval-pad { height: 125px; }
-    #signature-pad { height: 155px; }
+
+    /* BOTH SIGNATURE FIELDS */
+
+    #approval-pad,
+    #signature-pad {
+      height: 125px;
+    }
+
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
 
     .buttons {
       display: flex;
+
       justify-content: center;
-      gap: 7px;
-      margin-top: 5px;
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      margin-top: 8px;
     }
 
     button {
-      min-width: 135px;
-      padding: 7px 16px;
-      border: 0;
+      min-width: 140px;
+
+      padding: 8px 16px;
+
+      border: none;
       border-radius: 999px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light) 55%, var(--accent));
-      box-shadow: 0 4px 10px rgba(0, 51, 102, .22);
+
+      color: #ffffff;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light) 55%,
+          var(--accent)
+        );
+
+      box-shadow:
+        0 4px 10px rgba(0, 51, 102, .22);
+
       cursor: pointer;
+
       font: inherit;
       font-size: .82rem;
-      font-weight: 700;
-      transition: transform .25s ease, box-shadow .25s ease;
-      animation: buttonPulse 3.5s ease-in-out infinite;
+      font-weight: bold;
+
+      transition:
+        transform .25s ease,
+        box-shadow .25s ease;
     }
 
     button:hover {
-      box-shadow: 0 8px 17px rgba(0, 91, 138, .3);
       transform: translateY(-2px);
+
+      box-shadow:
+        0 8px 17px rgba(0, 91, 138, .30);
     }
 
     #clearApproval,
-    #clear { background: linear-gradient(135deg, #64748b, #475569); }
+    #clear {
+      background:
+        linear-gradient(
+          135deg,
+          #64748b,
+          #475569
+        );
+    }
 
-    #save { background: linear-gradient(135deg, #007a4d, #00a878); }
+    #save {
+      background:
+        linear-gradient(
+          135deg,
+          #007a4d,
+          #00a878
+        );
+    }
+
+
+    /* =====================================================
+       ANIMATIONS
+       ===================================================== */
 
     @keyframes pageEnter {
-      from { opacity: 0; transform: translateY(14px) scale(.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     @keyframes drift {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(30px, 20px) scale(1.1); }
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(30px, 20px) scale(1.1);
+      }
     }
 
     @keyframes titleGlow {
-      0%, 100% { text-shadow: 0 0 0 rgba(0, 168, 120, 0); }
-      50% { text-shadow: 0 0 12px rgba(0, 168, 120, .2); }
+      0%,
+      100% {
+        text-shadow: 0 0 0 rgba(0, 168, 120, 0);
+      }
+
+      50% {
+        text-shadow: 0 0 12px rgba(0, 168, 120, .22);
+      }
     }
 
-    @keyframes borderFlow {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+    @keyframes backgroundFlow {
+      0% {
+        background-position: 0% 20%;
+      }
+
+      50% {
+        background-position: 100% 80%;
+      }
+
+      100% {
+        background-position: 20% 100%;
+      }
     }
 
-    @keyframes innerPulse {
-      0%, 100% { opacity: .35; transform: scale(.995); }
-      50% { opacity: .9; transform: scale(1.002); }
+    @keyframes framePulse {
+      0%,
+      100% {
+        opacity: .35;
+        transform: scale(.998);
+      }
+
+      50% {
+        opacity: .85;
+        transform: scale(1.002);
+      }
     }
 
-    @keyframes buttonPulse {
-      0%, 100% { box-shadow: 0 4px 10px rgba(0, 51, 102, .22); }
-      50% { box-shadow: 0 6px 15px rgba(0, 168, 120, .28); }
+    @keyframes blueBorderFlow {
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
     }
 
-    @media (max-height: 650px) {
-      .container { padding: 8px 22px; }
-      .page-heading { margin-bottom: 3px; }
-      .section-title { margin-top: 4px; }
-      .note { font-size: .68rem; }
-      #approval-pad { height: 90px; }
-      #signature-pad { height: 110px; }
-      button { padding: 5px 12px; font-size: .75rem; }
+    @keyframes redGreenCardFlow {
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
     }
+
+    @keyframes outerBluePulse {
+      0%,
+      100% {
+        opacity: .35;
+        transform: scale(.99);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.01);
+      }
+    }
+
+    @keyframes settingsGlow {
+      0%,
+      100% {
+        box-shadow:
+          0 0 8px rgba(0, 123, 255, .20),
+          0 0 18px rgba(0, 123, 255, .15);
+      }
+
+      50% {
+        box-shadow:
+          0 0 12px rgba(0, 123, 255, .40),
+          0 0 25px rgba(0, 123, 255, .25);
+      }
+    }
+
+
+    /* =====================================================
+       MOBILE RESPONSIVE DESIGN
+       ===================================================== */
 
     @media (max-width: 600px) {
-      body { padding: 6px; }
+
+      html,
+      body {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: auto;
+      }
+
+      body {
+        display: block;
+        min-width: 100%;
+        padding: 8px;
+      }
+
       .container {
-        height: calc(100vh - 12px);
-        max-height: calc(100vh - 12px);
-        padding: 9px 12px;
+        width: 520px;
+        min-width: 520px;
+        margin: 0 auto;
+        padding: 12px 10px 16px;
         border-radius: 15px;
       }
-      #approval-pad { height: 100px; }
-      #signature-pad { height: 125px; }
-      .section-title { font-size: .9rem; }
-      .note { font-size: .68rem; }
+
+      .page-heading {
+        margin-bottom: 8px;
+        font-size: .88rem;
+      }
+
+      .section-title {
+        margin-top: 12px;
+        margin-bottom: 3px;
+        font-size: .9rem;
+      }
+
+      .note {
+        margin: 3px auto 5px;
+        font-size: .7rem;
+      }
+
+      .pen-settings {
+        margin: 8px auto 10px;
+        padding: 9px 11px;
+      }
+
+      .signature-border-box {
+        width: 500px;
+        padding: 4px;
+      }
+
+      .pen-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .signature-border-box {
+        width: 500px;
+      }
+
+      #approval-pad,
+      #signature-pad {
+        width: 490px;
+        height: 100px;
+      }
+
+      button {
+        min-width: 130px;
+
+        font-size: .76rem;
+      }
+
+      .section-title {
+        margin-top: 15px;
+      }
     }
 
+
+    @media (max-width: 380px) {
+
+      .container {
+        width: 500px;
+        min-width: 500px;
+        padding: 10px 8px 14px;
+      }
+
+      .signature-border-box {
+        width: 480px;
+      }
+
+      #approval-pad,
+      #signature-pad {
+        width: 470px;
+        height: 88px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+    }
+
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
+
+      *,
+      *::before,
+      *::after {
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
       }
     }
+
   </style>
+
 </head>
 
 <body>
+
   <main class="container">
-    <h2>Rockview University</h2>
-    <h3 class="page-heading">Electronic Signature</h3>
 
-    <h3 class="section-title">Approval Mark</h3>
-    <p class="note">Write <b>CLEAR</b> or draw a line in the rectangular field below.</p>
-    <div class="canvas-wrap">
-      <canvas id="approval-pad" width="700" height="125" tabindex="0" aria-label="Approval mark drawing area"></canvas>
-    </div>
-    <div class="buttons">
-      <button type="button" id="clearApproval">Clear Approval</button>
+<h2>Rockview University</h2>
+
+<h3 class="page-heading">
+  Electronic Signature
+</h3>
+
+
+<!-- =====================================================
+     PEN SETTINGS
+     ===================================================== -->
+
+<section class="pen-settings">
+
+  <h3 class="pen-settings-title">
+    ✍ Choose Your Pen Settings
+  </h3>
+
+  <div class="pen-controls">
+
+    <div class="pen-control">
+
+      <label for="penType">
+        Pen Type
+      </label>
+
+      <select id="penType">
+
+        <option value="normal">
+          Normal Pen
+        </option>
+
+        <option value="thin">
+          Thin Pen
+        </option>
+
+        <option value="medium" selected>
+          Medium Pen
+        </option>
+
+        <option value="thick">
+          Thick Pen
+        </option>
+
+      </select>
+
     </div>
 
-    <h3 class="section-title">Officer Signature</h3>
-    <p class="note">Sign using a mouse, stylus or touch device. The ink is standard black.</p>
-    <div class="canvas-wrap">
-      <canvas id="signature-pad" width="700" height="155" tabindex="0" aria-label="Officer signature drawing area"></canvas>
-    </div>
-    <div class="buttons">
-      <button type="button" id="clear">Clear Signature</button>
-      <button type="submit" id="save" form="signatureForm">Save</button>
+
+    <div class="pen-control">
+
+      <label for="penColor">
+        Pen Color
+      </label>
+
+      <select id="penColor">
+
+        <option value="#111111">
+          ⚫ Black Pen
+        </option>
+
+        <option value="#0066ff">
+          🔵 Blue Pen
+        </option>
+
+        <option value="#ff7a00">
+          🟠 Orange Pen
+        </option>
+
+      </select>
+
     </div>
 
-    <form id="signatureForm" method="POST">
-      <input type="hidden" name="approval" id="approval">
-      <input type="hidden" name="signature" id="signature">
-    </form>
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     APPROVAL MARK
+     ===================================================== -->
+
+<h3 class="section-title signature-title">
+  Approval Mark
+</h3>
+
+<p class="note">
+  Write <b>CLEAR</b> or draw your approval mark using your selected pen.
+</p>
+
+
+<div class="signature-border-box">
+
+  <canvas
+    id="approval-pad"
+    width="700"
+    height="125"
+    tabindex="0"
+    aria-label="Approval mark drawing area">
+  </canvas>
+
+</div>
+
+
+<div class="buttons">
+
+  <button
+    type="button"
+    id="clearApproval">
+
+    Clear Approval
+
+  </button>
+
+</div>
+
+
+
+<!-- =====================================================
+     OFFICER SIGNATURE
+     ===================================================== -->
+
+<h3 class="section-title signature-title">
+  Officer Signature
+</h3>
+
+<p class="note">
+  Choose your pen type and color, then sign using a mouse,
+  stylus or touchscreen.
+</p>
+
+
+<div class="signature-border-box">
+
+  <canvas
+    id="signature-pad"
+    width="700"
+    height="125"
+    tabindex="0"
+    aria-label="Officer signature drawing area">
+  </canvas>
+
+</div>
+
+
+<div class="buttons">
+
+  <button
+    type="button"
+    id="clear">
+
+    Clear Signature
+
+  </button>
+
+
+  <button
+    type="submit"
+    id="save"
+    form="signatureForm">
+
+    Save Signature
+
+  </button>
+
+</div>
+
+
+
+<!-- =====================================================
+     FORM
+     ===================================================== -->
+
+<form id="signatureForm" method="POST">
+
+  <input
+    type="hidden"
+    name="approval"
+    id="approval"
+  >
+
+  <input
+    type="hidden"
+    name="signature"
+    id="signature"
+  >
+
+</form>
   </main>
 
   <script>
-    function setupSignaturePad(canvasId, clearButtonId) {
-      const canvas = document.getElementById(canvasId);
-      const clearButton = document.getElementById(clearButtonId);
-      const context = canvas.getContext('2d');
-      let drawing = false;
-      let hasInk = false;
 
-      context.lineCap = 'round';
-      context.lineJoin = 'round';
-      context.strokeStyle = '#111111';
-      context.lineWidth = 3.2;
+    /* =========================================================
+       GLOBAL PEN SETTINGS
+       ========================================================= */
 
-      function getPoint(event) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: (event.clientX - rect.left) * (canvas.width / rect.width),
-          y: (event.clientY - rect.top) * (canvas.height / rect.height)
-        };
-      }
+    const penTypeSelector =
+      document.getElementById('penType');
 
-      function startDrawing(event) {
-        event.preventDefault();
-        drawing = true;
-        hasInk = true;
-        const point = getPoint(event);
-        context.beginPath();
-        context.moveTo(point.x, point.y);
-        context.lineTo(point.x + 0.01, point.y + 0.01);
-        context.stroke();
-        canvas.setPointerCapture?.(event.pointerId);
-      }
+    const penColorSelector =
+      document.getElementById('penColor');
 
-      function draw(event) {
-        if (!drawing) return;
-        event.preventDefault();
-        const point = getPoint(event);
-        context.lineTo(point.x, point.y);
-        context.stroke();
-      }
 
-      function stopDrawing(event) {
-        if (!drawing) return;
-        drawing = false;
-        context.closePath();
-        if (event?.pointerId !== undefined) {
-          canvas.releasePointerCapture?.(event.pointerId);
-        }
-      }
+    function getPenWidth() {
 
-      function clearCanvas() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        hasInk = false;
-      }
+      const penType =
+        penTypeSelector.value;
 
-      canvas.addEventListener('pointerdown', startDrawing);
-      canvas.addEventListener('pointermove', draw);
-      canvas.addEventListener('pointerup', stopDrawing);
-      canvas.addEventListener('pointercancel', stopDrawing);
-      canvas.addEventListener('pointerleave', stopDrawing);
-      clearButton.addEventListener('click', clearCanvas);
+      const penWidths = {
 
-      return {
-        hasInk: () => hasInk,
-        dataUrl: () => canvas.toDataURL('image/png')
+        thin: 2,
+
+        normal: 3,
+
+        medium: 4,
+
+        thick: 6
+
       };
+
+      return penWidths[penType] || 4;
+
     }
 
-    const approvalPad = setupSignaturePad('approval-pad', 'clearApproval');
-    const signaturePad = setupSignaturePad('signature-pad', 'clear');
 
-    document.getElementById('signatureForm').addEventListener('submit', function (event) {
-      if (!approvalPad.hasInk() || !signaturePad.hasInk()) {
-        event.preventDefault();
-        alert('Please complete both signature fields before saving.');
-        return;
+    function getPenColor() {
+
+      return penColorSelector.value;
+
+    }
+
+
+
+    /* =========================================================
+       SIGNATURE PAD SETUP
+       ========================================================= */
+
+    function setupSignaturePad(
+      canvasId,
+      clearButtonId
+    ) {
+
+      const canvas =
+        document.getElementById(canvasId);
+
+      const clearButton =
+        document.getElementById(clearButtonId);
+
+      const context =
+        canvas.getContext('2d');
+
+
+      let drawing = false;
+
+      let hasInk = false;
+
+
+      context.lineCap = 'round';
+
+      context.lineJoin = 'round';
+
+
+      /* ---------------------------------------------------------
+         GET DRAWING POSITION
+         --------------------------------------------------------- */
+
+      function getPoint(event) {
+
+        const rect =
+          canvas.getBoundingClientRect();
+
+
+        return {
+
+          x:
+            (event.clientX - rect.left)
+            *
+            (canvas.width / rect.width),
+
+
+          y:
+            (event.clientY - rect.top)
+            *
+            (canvas.height / rect.height)
+
+        };
+
       }
 
-      document.getElementById('approval').value = approvalPad.dataUrl();
-      document.getElementById('signature').value = signaturePad.dataUrl();
-    });
+
+
+      /* ---------------------------------------------------------
+         START DRAWING
+         --------------------------------------------------------- */
+
+      function startDrawing(event) {
+
+        event.preventDefault();
+
+
+        drawing = true;
+
+        hasInk = true;
+
+
+        const point =
+          getPoint(event);
+
+
+        /* Apply selected pen settings */
+
+        context.strokeStyle =
+          getPenColor();
+
+
+        context.lineWidth =
+          getPenWidth();
+
+
+        context.beginPath();
+
+
+        context.moveTo(
+          point.x,
+          point.y
+        );
+
+
+        /* Small dot allows taps to register */
+
+        context.lineTo(
+          point.x + 0.01,
+          point.y + 0.01
+        );
+
+
+        context.stroke();
+
+
+        if (canvas.setPointerCapture) {
+
+          canvas.setPointerCapture(
+            event.pointerId
+          );
+
+        }
+
+      }
+
+
+
+      /* ---------------------------------------------------------
+         DRAW
+         --------------------------------------------------------- */
+
+      function draw(event) {
+
+        if (!drawing) {
+
+          return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        const point =
+          getPoint(event);
+
+
+        /* Allow color and pen size to update */
+
+        context.strokeStyle =
+          getPenColor();
+
+
+        context.lineWidth =
+          getPenWidth();
+
+
+        context.lineTo(
+          point.x,
+          point.y
+        );
+
+
+        context.stroke();
+
+      }
+
+
+
+      /* ---------------------------------------------------------
+         STOP DRAWING
+         --------------------------------------------------------- */
+
+      function stopDrawing(event) {
+
+        if (!drawing) {
+
+          return;
+
+        }
+
+
+        drawing = false;
+
+
+        context.closePath();
+
+
+        if (
+          event &&
+          event.pointerId !== undefined &&
+          canvas.releasePointerCapture
+        ) {
+
+          try {
+
+            canvas.releasePointerCapture(
+              event.pointerId
+            );
+
+          }
+
+          catch (error) {
+
+            /* Ignore pointer capture errors */
+
+          }
+
+        }
+
+      }
+
+
+
+      /* ---------------------------------------------------------
+         CLEAR CANVAS
+         --------------------------------------------------------- */
+
+      function clearCanvas() {
+
+        context.clearRect(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+
+        hasInk = false;
+
+      }
+
+
+
+      /* ---------------------------------------------------------
+         POINTER EVENTS
+         --------------------------------------------------------- */
+
+      canvas.addEventListener(
+        'pointerdown',
+        startDrawing
+      );
+
+
+      canvas.addEventListener(
+        'pointermove',
+        draw
+      );
+
+
+      canvas.addEventListener(
+        'pointerup',
+        stopDrawing
+      );
+
+
+      canvas.addEventListener(
+        'pointercancel',
+        stopDrawing
+      );
+
+
+      canvas.addEventListener(
+        'pointerleave',
+        stopDrawing
+      );
+
+
+      /* Clear button */
+
+      clearButton.addEventListener(
+        'click',
+        clearCanvas
+      );
+
+
+
+      /* ---------------------------------------------------------
+         RETURN FUNCTIONS
+         --------------------------------------------------------- */
+
+      return {
+
+        hasInk: function () {
+
+          return hasInk;
+
+        },
+
+
+        dataUrl: function () {
+
+          return canvas.toDataURL(
+            'image/png'
+          );
+
+        }
+
+      };
+
+    }
+
+
+
+    /* =========================================================
+       CREATE BOTH SIGNATURE PADS
+       ========================================================= */
+
+    const approvalPad =
+      setupSignaturePad(
+        'approval-pad',
+        'clearApproval'
+      );
+
+
+    const signaturePad =
+      setupSignaturePad(
+        'signature-pad',
+        'clear'
+      );
+
+
+
+    /* =========================================================
+       SAVE SIGNATURE
+       ========================================================= */
+
+    document
+      .getElementById('signatureForm')
+      .addEventListener(
+        'submit',
+        function (event) {
+
+
+          if (
+            !approvalPad.hasInk()
+            ||
+            !signaturePad.hasInk()
+          ) {
+
+            event.preventDefault();
+
+
+            alert(
+              'Please complete both signature fields before saving.'
+            );
+
+
+            return;
+
+          }
+
+
+
+          /* Approval image */
+
+          document
+            .getElementById('approval')
+            .value =
+              approvalPad.dataUrl();
+
+
+
+          /* Officer signature image */
+
+          document
+            .getElementById('signature')
+            .value =
+              signaturePad.dataUrl();
+
+        }
+      );
+
   </script>
+
 </body>
 </html>
