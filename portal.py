@@ -151,16 +151,8 @@ login_manager.init_app(app)
 
 
 app.config.update(
-    MAIL_SERVER="smtp.gmail.com",
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
-    MAIL_USE_SSL=False,
-    MAIL_TIMEOUT=30,
-    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
-    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-    MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME"),
+    MAIL_DEFAULT_SENDER=os.getenv("MAIL_FROM_EMAIL", os.getenv("MAIL_USERNAME")),
 )
-
 
 mail = Mail(app)
 
@@ -185,37 +177,109 @@ def clean_expired_reset_codes():
     db.session.commit()
 
 def send_email_with_retry(message, attempts=3):
-    """Send an existing Flask-Mail Message through Gmail SMTP."""
-    last_error = None
+    """Send an existing Flask-Mail Message through Brevo's HTTPS API."""
+    brevo_api_key = (os.getenv("BREVO_API_KEY") or "").strip()
+    sender_email = (os.getenv("MAIL_FROM_EMAIL") or "").strip()
+    sender_name = (os.getenv("MAIL_FROM_NAME") or "Rockview University").strip()
+    reply_to = (os.getenv("MAIL_REPLY_TO") or sender_email).strip()
 
+    if not brevo_api_key:
+        app.logger.error("BREVO_API_KEY is missing from the environment.")
+        return False
+
+    if not sender_email:
+        app.logger.error("MAIL_FROM_EMAIL is missing from the environment.")
+        return False
+
+    recipients = [
+        str(address).strip()
+        for address in (message.recipients or [])
+        if str(address).strip()
+    ]
+
+    if not recipients:
+        app.logger.error("Email was not sent because there is no recipient.")
+        return False
+
+    subject = str(
+        getattr(message, "subject", None)
+        or "Rockview University Notification"
+    )
+    plain_text = str(getattr(message, "body", None) or "")
+    html_body = getattr(message, "html", None)
+
+    if not html_body:
+        html_body = (
+            "<p>"
+            + escape(plain_text).replace("\n", "<br>")
+            + "</p>"
+        )
+
+    payload = {
+        "sender": {
+            "name": sender_name,
+            "email": sender_email,
+        },
+        "to": [{"email": recipient} for recipient in recipients],
+        "subject": subject,
+        "htmlContent": html_body,
+        "textContent": plain_text,
+    }
+
+    if reply_to:
+        payload["replyTo"] = {"email": reply_to}
+
+    headers = {
+        "accept": "application/json",
+        "api-key": brevo_api_key,
+        "content-type": "application/json",
+    }
+
+    last_error = None
     for attempt in range(1, attempts + 1):
         try:
-            mail.send(message)
-            app.logger.info(
-                "Email sent through Gmail on attempt %s to %s",
-                attempt,
-                ", ".join(message.recipients or []),
+            response = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                json=payload,
+                headers=headers,
+                timeout=30,
             )
-            return True
+
+            if 200 <= response.status_code < 300:
+                app.logger.info(
+                    "Email sent through Brevo on attempt %s to %s. Response: %s",
+                    attempt,
+                    ", ".join(recipients),
+                    response.text,
+                )
+                return True
+
+            raise RuntimeError(
+                f"Brevo HTTP {response.status_code}: {response.text}"
+            )
+
         except Exception as error:
             last_error = error
             app.logger.warning(
-                "Gmail email attempt %s/%s failed: %s",
+                "Brevo email attempt %s/%s failed for %s: %s",
                 attempt,
                 attempts,
+                ", ".join(recipients),
                 error,
             )
             if attempt < attempts:
                 time.sleep(5)
 
     app.logger.error(
-        "Gmail email failed after %s attempts: %s",
+        "Brevo email failed after %s attempts for %s: %s",
         attempts,
+        ", ".join(recipients),
         last_error,
     )
     return False
 
 
+# The exact six departments allowed to sign a clearance.
 # The exact six departments allowed to sign a clearance.
 DEPARTMENTS = {
     "accounts",
@@ -267,10 +331,10 @@ Rockview University
 """
 
     try:
-        send_email_with_retry(msg)
-
-        print(f"Receipt confirmation email sent to {student.email}.")
-        return True
+        sent = send_email_with_retry(msg)
+        if sent:
+            print(f"Receipt confirmation email sent to {student.email}.")
+        return sent
     except Exception as error:
         print(f"Receipt confirmation email failed: {error}")
         return False
@@ -334,12 +398,12 @@ Rockview University
 """
 
     try:
-        send_email_with_retry(msg)
-
-        print(
-            f"{department_name} signature email sent to {student.email}."
-        )
-        return True
+        sent = send_email_with_retry(msg)
+        if sent:
+            print(
+                f"{department_name} signature email sent to {student.email}."
+            )
+        return sent
     except Exception as error:
         # The signature remains recorded even if Gmail is temporarily unavailable.
         print(
