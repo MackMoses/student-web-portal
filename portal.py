@@ -185,117 +185,35 @@ def clean_expired_reset_codes():
     db.session.commit()
 
 def send_email_with_retry(message, attempts=3):
-    """Send an existing Flask-Mail Message through the Brevo HTTPS API."""
-
-    brevo_api_key = (os.getenv("BREVO_API_KEY") or "").strip()
-    sender_email = (os.getenv("MAIL_FROM_EMAIL") or "").strip()
-    sender_name = (os.getenv("MAIL_FROM_NAME") or "Rockview University").strip()
-    reply_to = (os.getenv("MAIL_REPLY_TO") or sender_email).strip()
-
-    if not brevo_api_key:
-        app.logger.error("BREVO_API_KEY is missing from the environment.")
-        return False
-
-    if not sender_email:
-        app.logger.error("MAIL_FROM_EMAIL is missing from the environment.")
-        return False
-
-    recipients = [
-        str(address).strip()
-        for address in (message.recipients or [])
-        if str(address).strip()
-    ]
-
-    if not recipients:
-        app.logger.error("Email was not sent because there is no recipient.")
-        return False
-
-    subject = str(
-        getattr(message, "subject", None)
-        or "Rockview University Notification"
-    )
-
-    plain_text = str(getattr(message, "body", None) or "")
-    html_body = getattr(message, "html", None)
-
-    if not html_body:
-        html_body = (
-            "<p>"
-            + escape(plain_text).replace("\\n", "")
-            + "</p>"
-        )
-
-    payload = {
-        "sender": {
-            "name": sender_name,
-            "email": sender_email,
-        },
-        "to": [
-            {"email": recipient}
-            for recipient in recipients
-        ],
-        "subject": subject,
-        "htmlContent": html_body,
-        "textContent": plain_text,
-    }
-
-    if reply_to:
-        payload["replyTo"] = {
-            "email": reply_to
-        }
-
-    headers = {
-        "accept": "application/json",
-        "api-key": brevo_api_key,
-        "content-type": "application/json",
-    }
-
+    """Send an existing Flask-Mail Message through Gmail SMTP."""
     last_error = None
 
     for attempt in range(1, attempts + 1):
         try:
-            response = requests.post(
-                "https://api.brevo.com/v3/smtp/email",
-                json=payload,
-                headers=headers,
-                timeout=30,
-             )
-
-            if 200 <= response.status_code < 300:
-                app.logger.info(
-                    "Email sent through Brevo on attempt %s to %s. Response: %s",
-                    attempt,
-                    ", ".join(recipients),
-                    response.text,
-                )
-                return True
-
-            raise RuntimeError(
-                f"Brevo HTTP {response.status_code}: {response.text}"
+            mail.send(message)
+            app.logger.info(
+                "Email sent through Gmail on attempt %s to %s",
+                attempt,
+                ", ".join(message.recipients or []),
             )
-
+            return True
         except Exception as error:
             last_error = error
-
             app.logger.warning(
-                "Brevo email attempt %s/%s failed for %s: %s",
+                "Gmail email attempt %s/%s failed: %s",
                 attempt,
                 attempts,
-                ", ".join(recipients),
                 error,
             )
-
             if attempt < attempts:
                 time.sleep(5)
 
     app.logger.error(
-        "Brevo email failed after %s attempts for %s: %s",
+        "Gmail email failed after %s attempts: %s",
         attempts,
-        ", ".join(recipients),
         last_error,
     )
     return False
-
 
 
 # The exact six departments allowed to sign a clearance.
@@ -566,37 +484,6 @@ def department_sign(department, student_id):
             "error": "The signature could not be recorded.",
             "details": str(error),
         }), 500
-
-def send_confirmation_email(receipt):
-
-    if not receipt:
-        return
-
-    # Get student email from database instead of session (safer)
-    student = Student.query.filter_by(student_id=receipt.student_id).first()
-
-    if not student or not student.email:
-        return
-
-    msg = Message(
-        subject="Receipt Confirmed",
-        recipients=[student.email]
-    )
-
-    msg.body = f"""
-Hello {receipt.student_name},
-
-Your receipt file:
-{receipt.filename}
-
-has been CONFIRMED by the Accounts Office.
-
-Thank you.
-Rockview University
-"""
-
-    send_email_with_retry(msg)
-
 
 migrate = Migrate(app, db)
 app.jinja_env.globals.update(getattr=getattr)
@@ -3516,33 +3403,6 @@ def studentdashboard():
         show_download=show_download,
         notifications=notifications
     )
-
-from flask_mail import Message
-def send_confirmation_email(receipt):
-
-    if not receipt:
-        return
-
-    student_email = session.get('student_email')
-
-    if not student_email:
-        return
-
-    msg = Message(
-        subject="Receipt Confirmed",
-        recipients=[student_email]
-    )
-
-    msg.body = f"""
-    Hello {receipt.student_name},
-
-    Your receipt ({receipt.filename}) has been confirmed.
-
-    Thank you.
-    """
-
-    send_email_with_retry(msg)
-
 
 def notification_student_details(notification):
     """Read the student name and ID from the existing notification message."""
