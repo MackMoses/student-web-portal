@@ -34,7 +34,8 @@
         }
 
         body {
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: auto;
             font-family: Arial, Helvetica, sans-serif;
             color: var(--ink);
             background:
@@ -1150,21 +1151,144 @@
             height: 100vh;
         }
 
+        /* ==========================================================
+           PHONE / SMALL-SCREEN SCROLL MODE
+           The complete page is allowed to scroll horizontally and
+           vertically. This prevents dashboard content from being
+           trapped underneath the viewport on medium-size phones.
+           ========================================================== */
         @media (max-width: 820px) {
-            :root { --sidebar-width: 70px; }
+            :root { --sidebar-width: 225px; }
 
-            .sidebar { padding: 14px 8px; }
-            .brand { justify-content: center; padding-left: 0; padding-right: 0; }
+            html,
+            body {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                min-height: 100%;
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .dashboard-shell {
+                display: block;
+                width: max-content;
+                min-width: 100%;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: var(--sidebar-width);
+                height: 100vh;
+                min-height: 100vh;
+                padding: 14px 10px;
+                transform: translateX(calc(-100% + 30px));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .sidebar::after {
+                right: -30px;
+                width: 30px;
+                height: 56px;
+                font-size: 16px;
+                border-width: 1px;
+                border-left: 0;
+                border-radius: 0 9px 9px 0;
+            }
+
+            .brand {
+                justify-content: flex-start;
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+
+            /* Keep the menu names visible when the phone sidebar opens. */
             .brand-copy,
             .menu-label,
             .menu-text,
-            .sidebar-tip { display: none; }
-            .menu-button { justify-content: center; padding: 10px 7px; }
-            .menu-icon { width: auto; }
-            .workspace { padding: 10px 10px 70px; }
-            .topbar { align-items: flex-start; flex-direction: column; }
-            .top-controls { position: absolute; top: 13px; right: 13px; }
-            .topbar { padding-right: 160px; }
+            .sidebar-tip {
+                display: block;
+            }
+
+            .menu-button {
+                justify-content: flex-start;
+                min-height: 42px;
+                padding: 10px 12px;
+                white-space: normal;
+            }
+
+            .menu-icon {
+                width: 24px;
+                flex: 0 0 24px;
+            }
+
+            .menu-text {
+                overflow: visible;
+                font-size: 12px;
+                line-height: 1.2;
+            }
+
+            .workspace {
+                width: 760px;
+                min-width: 760px;
+                height: auto;
+                min-height: 100vh;
+                padding: 10px 10px 20px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .top-controls {
+                position: static;
+            }
+
+            .topbar {
+                padding-right: 13px;
+            }
+
+            .content-area {
+                height: auto;
+                min-height: 0;
+            }
+
+            .view {
+                height: auto;
+                min-height: 0;
+            }
+
+            .notification-view,
+            .status-view {
+                height: auto;
+                min-height: 0;
+                overflow: visible;
+            }
+
+            .notice-list {
+                max-height: none;
+                overflow: visible;
+                padding-right: 0;
+            }
+
+            .footer {
+                position: relative;
+                right: auto;
+                bottom: auto;
+                left: auto;
+                width: 100%;
+                min-width: 760px;
+                margin-top: 12px;
+            }
+
+            .notification-dashboard {
+                grid-template-columns: 225px minmax(0, 1fr);
+            }
         }
 
         @media (max-width: 560px) {
@@ -1172,6 +1296,16 @@
             .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .topbar { padding: 13px; }
             .top-controls { position: static; }
+
+            /* Keep the full notification dashboard inside the page's
+               horizontal scroll area instead of clipping it. */
+            .notification-dashboard {
+                min-width: 700px;
+            }
+
+            .compact-departments {
+                grid-template-columns: repeat(3, minmax(135px, 1fr));
+            }
         }
     </style>
 </head>
