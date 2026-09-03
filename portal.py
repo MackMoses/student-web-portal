@@ -1099,7 +1099,7 @@ def sign_department(department):
 
 
 @app.route(
-    "/accountant_payment/<int:student_id>",
+    "/accountant_payment/<student_id>",
     methods=["GET", "POST"]
 )
 def accountant_payment(student_id):
@@ -1158,9 +1158,7 @@ def accountant_payment(student_id):
         "accountant_pay.html",
         student=student,
         is_health_sciences=is_health_sciences
-    )
-
-    
+    )    
 from flask import Flask, render_template, redirect, url_for, session, jsonify, send_file
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -1705,7 +1703,7 @@ def download():
                 "NEW / RETURNING STUDENTS",
                 "SCHOOL OF EDUCATION, HUMANITIES,",
                 "AGRICULTURE SCIENCES AND BUSINESS STUDIES",
-                "GENERAL CLEARANCE FORM - UNDERGRADUATE STUDIES",
+                "EXAMINATION CLEARANCE FORM - UNDERGRADUATE STUDIES",
             ],
         )
 

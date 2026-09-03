@@ -286,10 +286,555 @@
             box-shadow: 0 12px 28px rgba(0,0,0,.24);
         }
 
+        /* ==========================================================
+           NOTIFICATION UPDATES DASHBOARD
+           Excel-style circular progress + six department levels
+           ========================================================== */
+
         .notification-view {
+            --notify-bg: #061426;
+            --notify-card: #0b1c32;
+            --notify-card-2: #0d223c;
+            --notify-line: rgba(153, 188, 225, .20);
+            --notify-text: #f3f8ff;
+            --notify-muted: #9fb2c9;
+            --notify-red: #ff3045;
+            --notify-green: #34d96b;
+            --notify-blue: #28a8ff;
+            --notify-purple: #9b4dff;
+            --notify-orange: #ff8a19;
+            --notify-yellow: #ffd21a;
+
             display: flex;
             height: 100%;
+            min-height: 0;
             flex-direction: column;
+            overflow: hidden;
+            color: var(--notify-text);
+            background:
+                radial-gradient(circle at 24% 28%, rgba(255,48,69,.11), transparent 28%),
+                radial-gradient(circle at 75% 15%, rgba(40,168,255,.10), transparent 28%),
+                linear-gradient(145deg, #061325, #07192d 58%, #061426);
+            border: 1px solid rgba(133,173,217,.28);
+            box-shadow: 0 18px 40px rgba(0,0,0,.32);
+        }
+
+        .notification-view .panel-heading {
+            margin-bottom: 12px;
+            padding: 2px 2px 12px;
+            border-bottom: 1px solid rgba(151,187,224,.20);
+        }
+
+        .notification-view .panel-heading h2 {
+            color: #fff;
+            font-size: clamp(18px, 2vw, 24px);
+            letter-spacing: .2px;
+        }
+
+        .notification-heading-copy {
+            min-width: 0;
+        }
+
+        .notification-heading-copy p {
+            margin: 4px 0 0;
+            color: #9fb2c9;
+            font-size: 11px;
+        }
+
+        .notification-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex: 0 0 auto;
+            padding: 7px 11px !important;
+            color: #fff !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            letter-spacing: .8px;
+            background: rgba(255,255,255,.055) !important;
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 999px !important;
+            box-shadow: inset 0 0 20px rgba(255,255,255,.025);
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            background: #e32626;
+            border: 2px solid #ffd7d7;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(227,38,38,.65);
+            animation: livePulse 1.25s ease-out infinite;
+        }
+
+        .notification-dashboard-scroll {
+            min-height: 0;
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(118,157,201,.45) transparent;
+        }
+
+        .notification-dashboard-scroll::-webkit-scrollbar { width: 7px; }
+        .notification-dashboard-scroll::-webkit-scrollbar-track { background: transparent; }
+        .notification-dashboard-scroll::-webkit-scrollbar-thumb {
+            background: rgba(118,157,201,.40);
+            border-radius: 99px;
+        }
+
+        .notification-overview {
+            display: grid;
+            grid-template-columns: minmax(285px, .9fr) minmax(440px, 1.45fr);
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .progress-card,
+        .journey-card,
+        .notification-feed-card,
+        .motivation-card {
+            min-width: 0;
+            background: linear-gradient(145deg, rgba(13,34,60,.92), rgba(7,24,44,.94));
+            border: 1px solid var(--notify-line);
+            border-radius: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 10px 24px rgba(0,0,0,.18);
+        }
+
+        .dashboard-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .25px;
+            text-transform: uppercase;
+        }
+
+        .dashboard-card-title .title-icon {
+            color: #39a8ff;
+            font-size: 17px;
+        }
+
+        .progress-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 13px;
+        }
+
+        .progress-card .dashboard-card-title {
+            align-self: stretch;
+        }
+
+        .clearance-ring {
+            --progress: 0%;
+            position: relative;
+            display: grid;
+            width: min(215px, 68vw);
+            aspect-ratio: 1;
+            place-items: center;
+            margin: 2px auto 8px;
+            border-radius: 50%;
+            background:
+                conic-gradient(
+                    from -90deg,
+                    #ff3045 0 var(--progress),
+                    rgba(255,48,69,.18) var(--progress) 100%
+                );
+            box-shadow:
+                0 0 0 1px rgba(255,48,69,.45),
+                0 0 28px rgba(255,48,69,.16),
+                inset 0 0 25px rgba(0,0,0,.22);
+        }
+
+        .clearance-ring::before {
+            position: absolute;
+            inset: 12px;
+            content: "";
+            background:
+                radial-gradient(circle at 50% 32%, rgba(255,48,69,.09), transparent 35%),
+                linear-gradient(145deg, #08182b, #071426);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+            box-shadow: inset 0 0 30px rgba(0,0,0,.42);
+        }
+
+        .clearance-ring::after {
+            position: absolute;
+            inset: -6px;
+            content: "";
+            border: 1px solid rgba(255,48,69,.40);
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px rgba(255,255,255,.012);
+        }
+
+        .ring-center {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .ring-count {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            color: #fff;
+            font-size: 49px;
+            font-weight: 900;
+            line-height: .95;
+            text-shadow: 0 7px 20px rgba(0,0,0,.36);
+        }
+
+        .ring-count small {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .ring-label {
+            margin-top: 9px;
+            color: #ffd21a;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+        }
+
+        .ring-percent {
+            margin-top: 7px;
+            padding: 5px 10px;
+            color: #35c7ff;
+            font-size: 11px;
+            font-weight: 900;
+            background: rgba(37,135,255,.16);
+            border: 1px solid rgba(54,153,255,.28);
+            border-radius: 7px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            width: 100%;
+            margin-top: 8px;
+            border: 1px solid rgba(145,181,219,.16);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-stat {
+            padding: 8px 5px;
+            text-align: center;
+            background: rgba(4,19,35,.35);
+            border-right: 1px solid rgba(145,181,219,.13);
+        }
+
+        .progress-stat:last-child { border-right: 0; }
+        .progress-stat strong { display: block; color: #fff; font-size: 18px; line-height: 1; }
+        .progress-stat span { display: block; margin-top: 4px; font-size: 8px; font-weight: 900; letter-spacing: .45px; text-transform: uppercase; }
+        .progress-stat.stat-signed span { color: #39b4ff; }
+        .progress-stat.stat-waiting span { color: #ffb42b; }
+        .progress-stat.stat-remaining span { color: #42e277; }
+
+        .journey-card { padding: 13px; }
+
+        .department-journey-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .journey-item {
+            position: relative;
+            min-width: 0;
+            min-height: 122px;
+            padding: 11px 8px;
+            text-align: center;
+            background: rgba(7,26,47,.70);
+            border: 1px solid rgba(135,174,215,.20);
+            border-radius: 11px;
+            overflow: hidden;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .journey-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,.27);
+            box-shadow: 0 8px 18px rgba(0,0,0,.18);
+        }
+
+        .journey-icon {
+            position: relative;
+            display: grid;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 8px;
+            place-items: center;
+            font-size: 20px;
+            font-weight: 900;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            box-shadow: 0 0 18px currentColor;
+        }
+
+        .journey-icon::after {
+            position: absolute;
+            right: -4px;
+            bottom: -4px;
+            display: grid;
+            width: 19px;
+            height: 19px;
+            content: "○";
+            place-items: center;
+            color: currentColor;
+            font-size: 13px;
+            font-weight: 900;
+            background: #07192d;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+        }
+
+        .journey-item.signed .journey-icon::after {
+            content: "✓";
+            color: #fff;
+            background: currentColor;
+        }
+
+        .journey-item.reception { color: var(--notify-green); }
+        .journey-item.library { color: var(--notify-blue); }
+        .journey-item.admission { color: var(--notify-purple); }
+        .journey-item.accounts { color: var(--notify-orange); }
+        .journey-item.systems { color: var(--notify-red); }
+        .journey-item.adosa { color: var(--notify-yellow); }
+
+        .journey-number-name {
+            display: block;
+            overflow: hidden;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .journey-status {
+            display: block;
+            margin-top: 5px;
+            color: currentColor;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .journey-item.pending { opacity: .82; }
+        .journey-item.pending .journey-icon { box-shadow: none; }
+        .journey-item.signed { background: linear-gradient(145deg, rgba(11,40,55,.92), rgba(6,29,48,.88)); }
+
+        .notification-bottom-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(210px, .72fr);
+            gap: 12px;
+            margin-top: 12px;
+            min-width: 0;
+        }
+
+        .notification-feed-card,
+        .motivation-card { padding: 12px; }
+
+        .feed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(145,181,219,.14);
+        }
+
+        .feed-header h3 {
+            margin: 0;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .35px;
+            text-transform: uppercase;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .notification-view .notice-list {
+            max-height: 245px;
+            min-height: 120px;
+            overflow-y: auto;
+            padding-right: 3px;
+        }
+
+        .notification-view .notice-empty {
+            padding: 22px 10px;
+            color: var(--notify-muted);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .notification-view .notification {
+            position: relative;
+            margin-bottom: 6px;
+            padding: 9px 11px 9px 36px;
+            color: #eaf3ff;
+            font-size: 10.5px;
+            line-height: 1.45;
+            background: rgba(5,22,40,.70);
+            border: 1px solid rgba(136,174,215,.13);
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateX(12px);
+            animation: noticeIn .35s ease forwards;
+        }
+
+        .notification-view .notification::before {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            display: grid;
+            width: 18px;
+            height: 18px;
+            content: "•";
+            place-items: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 900;
+            background: #1984d7;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 12px rgba(25,132,215,.35);
+        }
+
+        .notification-view .notification.show { opacity: 1; transform: translateX(0); }
+        .notification-view .notification.alert-success { border-left: 3px solid var(--notify-green); }
+        .notification-view .notification.alert-success::before { content: "✓"; background: #20ad50; font-size: 11px; }
+        .notification-view .notification.alert-info { border-left: 3px solid var(--notify-blue); }
+        .notification-view .notification.alert-danger { border-left: 3px solid var(--notify-red); }
+        .notification-view .notification.alert-danger::before { content: "!"; background: #d93645; font-size: 11px; }
+        .notification-view .notification strong { color: #fff; }
+
+        .motivation-card {
+            display: flex;
+            min-height: 180px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(255,185,24,.12), transparent 36%),
+                linear-gradient(145deg, rgba(14,31,55,.95), rgba(8,25,46,.95));
+        }
+
+        .trophy-icon {
+            margin-bottom: 5px;
+            font-size: 42px;
+            line-height: 1;
+            filter: drop-shadow(0 6px 12px rgba(255,175,0,.22));
+        }
+
+        .motivation-card h3 {
+            margin: 5px 0 5px;
+            color: #3ba9ff;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: .45px;
+            text-transform: uppercase;
+        }
+
+        .motivation-card p {
+            max-width: 260px;
+            margin: 0;
+            color: #c5d3e3;
+            font-size: 10.5px;
+            line-height: 1.5;
+        }
+
+        .completion-message {
+            margin-top: 8px;
+            color: #39db70;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        @keyframes livePulse {
+            0% { box-shadow: 0 0 0 0 rgba(227,38,38,.65); }
+            70% { box-shadow: 0 0 0 7px rgba(227,38,38,0); }
+            100% { box-shadow: 0 0 0 0 rgba(227,38,38,0); }
+        }
+
+        @media (max-width: 980px) {
+            .notification-overview { grid-template-columns: 1fr; }
+            .notification-bottom-grid { grid-template-columns: 1fr; }
+            .progress-card { padding-bottom: 11px; }
+            .clearance-ring { width: 190px; }
+        }
+
+        @media (max-width: 620px) {
+            .notification-view {
+                height: auto;
+                min-height: 100%;
+                overflow: visible;
+                padding: 10px;
+            }
+
+            .notification-dashboard-scroll {
+                overflow: visible;
+                padding-right: 0;
+            }
+
+            .notification-view .panel-heading {
+                align-items: flex-start;
+                margin-bottom: 10px;
+            }
+
+            .notification-heading-copy p { font-size: 10px; }
+            .notification-live-badge { padding: 6px 9px !important; }
+            .clearance-ring { width: min(190px, 68vw); }
+            .ring-count { font-size: 42px; }
+            .ring-count small { font-size: 19px; }
+            .department-journey-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .journey-item { min-height: 112px; }
+            .notification-bottom-grid { margin-bottom: 8px; }
+            .notification-view .notice-list { max-height: 260px; }
+        }
+
+        @media (max-width: 380px) {
+            .department-journey-grid { grid-template-columns: 1fr; }
+            .journey-item {
+                display: grid;
+                grid-template-columns: 52px 1fr;
+                min-height: 72px;
+                align-items: center;
+                text-align: left;
+            }
+            .journey-icon { grid-row: span 2; margin: 0; }
+            .journey-number-name,
+            .journey-status { text-align: left; }
         }
 
         .panel-heading {
@@ -310,7 +855,7 @@
             font-weight: 800;
         }
 
-        .panel-heading span {
+        .panel-heading > span {
             padding: 5px 9px;
             color: #fff;
             font-size: 10px;
@@ -724,12 +1269,145 @@
 
             <div class="content-area">
                 <section id="notificationsView" class="view panel notification-view">
+                    {% set progress = namespace(signed=0) %}
+                    {% if student.signed_reception %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% if student.signed_library %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% if student.signed_admission %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% if student.signed_accounts %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% if student.signed_systems %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% if student.signed_adosa %}{% set progress.signed = progress.signed + 1 %}{% endif %}
+                    {% set progress.remaining = 6 - progress.signed %}
+                    {% set progress.percent = ((progress.signed / 6) * 100)|round(0)|int %}
+
                     <div class="panel-heading">
-                        <h2>Notification Updates</h2>
-                        <span>LIVE UPDATES</span>
+                        <div class="notification-heading-copy">
+                            <h2>Notification Updates</h2>
+                            <p>Real-time clearance progress and departmental updates</p>
+                        </div>
+                        <span class="notification-live-badge"><span class="live-dot"></span> LIVE</span>
                     </div>
-                    <div id="notification-area" class="notice-list">
-                        <div class="notice-empty">Loading latest notifications...</div>
+
+                    <div class="notification-dashboard-scroll">
+                        <div class="notification-overview">
+                            <article class="progress-card">
+                                <h3 class="dashboard-card-title">
+                                    <span class="title-icon">▥</span>
+                                    Clearance Progress
+                                </h3>
+
+                                <div
+                                    id="clearanceProgressRing"
+                                    class="clearance-ring"
+                                    data-progress-percent="{{ progress.percent }}"
+                                    data-progress-signed="{{ progress.signed }}"
+                                    aria-label="{{ progress.signed }} of 6 departments signed"
+                                >
+                                    <div class="ring-center">
+                                        <div class="ring-count">
+                                            <span id="ringSignedCount">{{ progress.signed }}</span>
+                                            <small>/6</small>
+                                        </div>
+                                        <div class="ring-label" id="ringStatusLabel">
+                                            {% if progress.signed == 6 %}
+                                                Clearance Completed
+                                            {% else %}
+                                                Departments Completed
+                                            {% endif %}
+                                        </div>
+                                        <div class="ring-percent" id="ringPercentText">{{ progress.percent }}% COMPLETE</div>
+                                    </div>
+                                </div>
+
+                                <div class="progress-stats">
+                                    <div class="progress-stat stat-signed">
+                                        <strong id="signedStat">{{ progress.signed }}</strong>
+                                        <span>Signed</span>
+                                    </div>
+                                    <div class="progress-stat stat-waiting">
+                                        <strong id="waitingStat">{{ progress.remaining }}</strong>
+                                        <span>Waiting</span>
+                                    </div>
+                                    <div class="progress-stat stat-remaining">
+                                        <strong id="remainingStat">{{ progress.remaining }}</strong>
+                                        <span>Remaining</span>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article class="journey-card">
+                                <h3 class="dashboard-card-title">
+                                    <span class="title-icon">☆</span>
+                                    Your Clearance Journey
+                                </h3>
+
+                                <div class="department-journey-grid" id="departmentJourneyGrid">
+                                    <div class="journey-item reception {% if student.signed_reception %}signed{% else %}pending{% endif %}" data-department="reception" data-signed="{{ 'true' if student.signed_reception else 'false' }}">
+                                        <div class="journey-icon">R</div>
+                                        <span class="journey-number-name">1. Reception</span>
+                                        <span class="journey-status">{% if student.signed_reception %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+
+                                    <div class="journey-item library {% if student.signed_library %}signed{% else %}pending{% endif %}" data-department="library" data-signed="{{ 'true' if student.signed_library else 'false' }}">
+                                        <div class="journey-icon">L</div>
+                                        <span class="journey-number-name">2. Library</span>
+                                        <span class="journey-status">{% if student.signed_library %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+
+                                    <div class="journey-item admission {% if student.signed_admission %}signed{% else %}pending{% endif %}" data-department="admission" data-signed="{{ 'true' if student.signed_admission else 'false' }}">
+                                        <div class="journey-icon">A</div>
+                                        <span class="journey-number-name">3. Admission</span>
+                                        <span class="journey-status">{% if student.signed_admission %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+
+                                    <div class="journey-item accounts {% if student.signed_accounts %}signed{% else %}pending{% endif %}" data-department="accounts" data-signed="{{ 'true' if student.signed_accounts else 'false' }}">
+                                        <div class="journey-icon">₿</div>
+                                        <span class="journey-number-name">4. Accounts</span>
+                                        <span class="journey-status">{% if student.signed_accounts %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+
+                                    <div class="journey-item systems {% if student.signed_systems %}signed{% else %}pending{% endif %}" data-department="systems" data-signed="{{ 'true' if student.signed_systems else 'false' }}">
+                                        <div class="journey-icon">S</div>
+                                        <span class="journey-number-name">5. Systems</span>
+                                        <span class="journey-status">{% if student.signed_systems %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+
+                                    <div class="journey-item adosa {% if student.signed_adosa %}signed{% else %}pending{% endif %}" data-department="adosa" data-signed="{{ 'true' if student.signed_adosa else 'false' }}">
+                                        <div class="journey-icon">A</div>
+                                        <span class="journey-number-name">6. ADOSA</span>
+                                        <span class="journey-status">{% if student.signed_adosa %}SIGNED{% else %}WAITING{% endif %}</span>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="notification-bottom-grid">
+                            <article class="notification-feed-card">
+                                <div class="feed-header">
+                                    <h3>Live Notification Feed</h3>
+                                    <span class="live-indicator"><span class="live-dot"></span> LIVE</span>
+                                </div>
+                                <div id="notification-area" class="notice-list">
+                                    <div class="notice-empty">Loading latest notifications...</div>
+                                </div>
+                            </article>
+
+                            <aside class="motivation-card">
+                                <div class="trophy-icon" aria-hidden="true">🏆</div>
+                                <h3 id="motivationTitle">
+                                    {% if progress.signed == 6 %}Clearance Complete!{% else %}Stay on Track!{% endif %}
+                                </h3>
+                                <p id="motivationText">
+                                    {% if progress.signed == 6 %}
+                                        Excellent. All six departments have signed your clearance.
+                                    {% else %}
+                                        Keep checking your live updates as each department completes your clearance.
+                                    {% endif %}
+                                </p>
+                                <div class="completion-message" id="completionMessage">
+                                    {% if progress.signed == 6 %}6 OF 6 COMPLETED{% else %}{{ progress.signed }} OF 6 COMPLETED{% endif %}
+                                </div>
+                            </aside>
+                        </div>
                     </div>
                 </section>
 
@@ -760,7 +1438,11 @@
                     </div>
 
                     <div class="action-grid">
-                        <a href="{{ url_for('payment_history', student_id=student.id) }}" class="action-button action-purple">Payment History</a>
+                        {% if is_health_sciences %}
+                            <a href="{{ url_for('health_payment_history', student_id=student.id) }}" class="action-button action-purple">Health Sciences Payment History</a>
+                        {% else %}
+                            <a href="{{ url_for('payment_history', student_id=student.id) }}" class="action-button action-purple">Payment History</a>
+                        {% endif %}
                         <a href="{{ url_for('student_payment_progress', student_id=student.id) }}" class="action-button action-gold">Payment Progress</a>
                         <a href="{{ url_for('request_clearance') }}" class="action-button action-blue">Request Clearance</a>
                         <a href="{{ url_for('upload_receipt') }}" class="action-button action-cyan">Upload Receipt</a>
@@ -829,6 +1511,7 @@
                 });
                 if (!response.ok) throw new Error(`Notification endpoint returned ${response.status}`);
                 const data = await response.json();
+                syncProgressFromNotifications(data);
                 notificationContainer.innerHTML = '';
                 if (!Array.isArray(data) || data.length === 0) {
                     notificationContainer.innerHTML = '<div class="notice-empty">No new notifications.</div>';
@@ -842,6 +1525,85 @@
                 console.warn('Notifications unavailable:', error);
                 notificationContainer.innerHTML = '<div class="notice-empty">Notifications are currently unavailable.</div>';
             }
+        }
+
+        function updateProgressDisplay(signedCount) {
+            const total = 6;
+            const safeSigned = Math.max(0, Math.min(total, Number(signedCount) || 0));
+            const percent = Math.round((safeSigned / total) * 100);
+            const remaining = total - safeSigned;
+
+            const ring = document.getElementById('clearanceProgressRing');
+            const ringSignedCount = document.getElementById('ringSignedCount');
+            const ringPercentText = document.getElementById('ringPercentText');
+            const ringStatusLabel = document.getElementById('ringStatusLabel');
+            const signedStat = document.getElementById('signedStat');
+            const waitingStat = document.getElementById('waitingStat');
+            const remainingStat = document.getElementById('remainingStat');
+            const motivationTitle = document.getElementById('motivationTitle');
+            const motivationText = document.getElementById('motivationText');
+            const completionMessage = document.getElementById('completionMessage');
+
+            if (ring) ring.style.setProperty('--progress', percent + '%');
+            if (ringSignedCount) ringSignedCount.textContent = safeSigned;
+            if (ringPercentText) ringPercentText.textContent = percent + '% COMPLETE';
+            if (signedStat) signedStat.textContent = safeSigned;
+            if (waitingStat) waitingStat.textContent = remaining;
+            if (remainingStat) remainingStat.textContent = remaining;
+
+            if (safeSigned === 6) {
+                if (ringStatusLabel) ringStatusLabel.textContent = 'CLEARANCE COMPLETED';
+                if (motivationTitle) motivationTitle.textContent = 'CLEARANCE COMPLETE!';
+                if (motivationText) motivationText.textContent = 'Excellent. All six departments have signed your clearance.';
+                if (completionMessage) completionMessage.textContent = '6 OF 6 COMPLETED';
+            } else {
+                if (ringStatusLabel) ringStatusLabel.textContent = 'DEPARTMENTS COMPLETED';
+                if (motivationTitle) motivationTitle.textContent = 'STAY ON TRACK!';
+                if (motivationText) motivationText.textContent = 'Keep checking your live updates as each department completes your clearance.';
+                if (completionMessage) completionMessage.textContent = safeSigned + ' OF 6 COMPLETED';
+            }
+        }
+
+        function setDepartmentSigned(departmentName) {
+            const card = document.querySelector('.journey-item[data-department="' + departmentName + '"]');
+            if (!card || card.dataset.signed === 'true') return false;
+
+            card.dataset.signed = 'true';
+            card.classList.remove('pending');
+            card.classList.add('signed');
+
+            const status = card.querySelector('.journey-status');
+            if (status) status.textContent = 'SIGNED';
+            return true;
+        }
+
+        function syncProgressFromNotifications(data) {
+            if (!Array.isArray(data) || data.length === 0) return;
+
+            const departments = ['reception', 'library', 'admission', 'accounts', 'systems', 'adosa'];
+
+            data.forEach(function (item) {
+                const text = ((item.title || '') + ' ' + (item.message || '')).toLowerCase();
+                const isNegative = text.includes('not signed') || text.includes('unsigned') || text.includes('pending') || text.includes('waiting');
+                const isPositive = text.includes('signed') || text.includes('approved') || text.includes('cleared');
+
+                if (!isPositive || isNegative) return;
+
+                departments.forEach(function (department) {
+                    if (text.includes(department)) setDepartmentSigned(department);
+                });
+            });
+
+            const signedCount = document.querySelectorAll('.journey-item[data-signed="true"]').length;
+            updateProgressDisplay(signedCount);
+        }
+
+        function initializeClearanceProgress() {
+            const ring = document.getElementById('clearanceProgressRing');
+            if (!ring) return;
+
+            const initialSigned = Number(ring.dataset.progressSigned || 0);
+            updateProgressDisplay(initialSigned);
         }
 
         function extractFilename(response) {
@@ -951,6 +1713,7 @@
                 });
             });
 
+            initializeClearanceProgress();
             loadNotifications();
             setInterval(function () {
                 if (!documentDownloaded) loadNotifications();
