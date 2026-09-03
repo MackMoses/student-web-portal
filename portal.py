@@ -1,44 +1,27 @@
-from flask import (
-    Flask,
-    render_template,render_template_string,
-    request,
-    redirect,
-    url_for,
-    session,
-    send_file,
-    flash,
-    jsonify
-)
+from flask import ( Flask, render_template,render_template_string, request, redirect, url_for, session, send_file, flash, jsonify)
 import csv
 import os
-from datetime import datetime
-from flask import Flask, jsonify
 from flask_mail import Mail, Message
-from flask import send_file
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from flask import jsonify, session
 from models import SystemNotification
 from models import ClearanceRequest
 from models import DownloadLog
 from models import db, Term1, Term2, Term3
-import os
 from io import BytesIO
-from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.lib.utils import ImageReader
-import qrcode
 import tempfile
 from reportlab.lib.colors import HexColor
-from datetime import datetime
 from flask_socketio import join_room
 import math
 import base64
 from forms import UploadReceiptForm
 from flask_login import LoginManager
-from flask_migrate import Migrate  # <-- Add this line
-# In your app.py, at the top, make sure you import your models:
+from flask_migrate import Migrate 
 from models import db, Student, PaymentHistory
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from werkzeug.utils import secure_filename
@@ -54,31 +37,20 @@ import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 from flask import send_file, make_response, send_from_directory
 import mimetypes
-from io import BytesIO
-from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import (
-                                  SimpleDocTemplate,
-                                  Table,
-                                  TableStyle,
-                                  Paragraph,
-                                  Spacer
-                                 )
+from reportlab.platypus import ( SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer )
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from flask_socketio import SocketIO, emit
 from flask_socketio import SocketIO, emit, join_room
 from models import ReceiptNotification
 import uuid
-from datetime import datetime
 from PIL import Image
 from models import DepartmentSignature
 from sqlalchemy import String, func
 from sqlalchemy import text
 import shutil
 import tempfile
-from io import BytesIO
-from flask import jsonify, request, render_template, send_file, session
 from sqlalchemy import inspect, text
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -89,10 +61,17 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta
 from models import Student, PasswordResetCode
-from flask import flash, redirect, render_template, request, session, url_for
 from flask_mail import Message
-from sqlalchemy import func
 import hmac
+import time
+from io import BytesIO
+import qrcode
+import random
+from sqlalchemy import or_
+from pdf2image import convert_from_bytes
+from flask import (after_this_request, jsonify, redirect, send_file, session, url_for,)
+import re
+
 
 
 # Department passwords (change these to your desired secure passwords)
@@ -1159,16 +1138,6 @@ def accountant_payment(student_id):
         student=student,
         is_health_sciences=is_health_sciences
     )    
-from flask import Flask, render_template, redirect, url_for, session, jsonify, send_file
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from io import BytesIO
-import os
-import tempfile
-import qrcode
-from datetime import datetime
-import random
 # Helper function to generate clearance number
 def generate_clearance_number(student_id):
     year = datetime.now().year
@@ -1180,13 +1149,6 @@ def generate_clearance_number(student_id):
 def generate_verification_code():
     return ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))
 
-from datetime import datetime
-from io import BytesIO
-from flask import send_file, session, redirect, url_for, jsonify
-from sqlalchemy import or_
-from io import BytesIO
-from reportlab.lib.utils import ImageReader
-from pdf2image import convert_from_bytes
 
 
 def flatten_pdf_to_image_pdf(vector_pdf_bytes, page_size):
@@ -1250,28 +1212,6 @@ def flatten_pdf_to_image_pdf(vector_pdf_bytes, page_size):
 # ================================================================
 # REQUIRED IMPORTS
 # ================================================================
-
-import os
-import tempfile
-from io import BytesIO
-from datetime import datetime
-
-from flask import (
-    after_this_request,
-    jsonify,
-    redirect,
-    send_file,
-    session,
-    url_for,
-)
-
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.lib.colors import HexColor
-from reportlab.lib.pagesizes import letter, landscape
-from reportlab.lib.utils import ImageReader
-from pdf2image import convert_from_bytes
-
 
 # ================================================================
 # FLATTEN THE GENERATED PDF INTO AN IMAGE-ONLY PDF
@@ -3318,8 +3258,6 @@ def send_confirmation_email(receipt):
 
     mail.send(msg)
 
-from datetime import datetime
-import re
 def notification_student_details(notification):
     """Read the student name and ID from the existing notification message."""
     message = notification.message or ""
